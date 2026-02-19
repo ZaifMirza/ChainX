@@ -1,7 +1,7 @@
 // Transaction detail widget
 
 use ratatui::{
-    style::Color,
+    style::{Color, Style},
     text::{Line, Text},
     widgets::{Paragraph, Wrap},
     Frame,
@@ -82,7 +82,8 @@ pub fn draw_transaction_widget(
     let text = Text::from(lines);
     let paragraph = Paragraph::new(text)
         .wrap(Wrap { trim: true })
-        .scroll((scroll_offset, 0));
+        .scroll((scroll_offset, 0))
+        .style(Style::default().bg(Color::Black));
 
     frame.render_widget(paragraph, area);
 }

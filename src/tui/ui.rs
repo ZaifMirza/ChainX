@@ -4,13 +4,20 @@ use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Margin, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState, Wrap},
+    widgets::{Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState, Wrap, Clear},
     Frame,
 };
 
 use crate::tui::app::{App, AppMode, ViewState};
 
 pub fn draw(frame: &mut Frame, app: &mut App) {
+    // Set black background for entire terminal
+    frame.render_widget(Clear, frame.area());
+    frame.render_widget(
+        Block::default()
+            .style(Style::default().bg(Color::Black)),
+        frame.area(),
+    );
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
@@ -31,7 +38,8 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
 fn draw_header(frame: &mut Frame, area: Rect, app: &App) {
     let header_block = Block::default()
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(Color::Cyan))
+        .style(Style::default().bg(Color::Black));
 
     let inner_area = header_block.inner(area);
     frame.render_widget(header_block, area);
@@ -80,6 +88,7 @@ fn draw_main_content(frame: &mut Frame, area: Rect, app: &mut App) {
     let content_block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Blue))
+        .style(Style::default().bg(Color::Black))
         .title(match &app.view_state {
             ViewState::Home => " Welcome ",
             ViewState::Transaction(_) => " Transaction Details ",
@@ -183,7 +192,8 @@ fn draw_home_view(frame: &mut Frame, area: Rect) {
 
     let home_paragraph = Paragraph::new(Text::from(home_text))
         .alignment(Alignment::Center)
-        .wrap(Wrap { trim: true });
+        .wrap(Wrap { trim: true })
+        .style(Style::default().bg(Color::Black));
 
     frame.render_widget(home_paragraph, area);
 }
@@ -206,7 +216,8 @@ fn draw_error_view(frame: &mut Frame, area: Rect, msg: &str) {
 
     let error_paragraph = Paragraph::new(Text::from(error_text))
         .alignment(Alignment::Center)
-        .wrap(Wrap { trim: true });
+        .wrap(Wrap { trim: true })
+        .style(Style::default().bg(Color::Black));
 
     frame.render_widget(error_paragraph, area);
 }
@@ -218,7 +229,8 @@ fn draw_input_or_status(frame: &mut Frame, area: Rect, app: &App) {
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Yellow))
                 .title(" Input ")
-                .title_alignment(Alignment::Left);
+                .title_alignment(Alignment::Left)
+                .style(Style::default().bg(Color::Black));
 
             let input_text = Paragraph::new(app.input.as_str())
                 .block(input_block)
@@ -235,7 +247,8 @@ fn draw_input_or_status(frame: &mut Frame, area: Rect, app: &App) {
         _ => {
             let status_block = Block::default()
                 .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::Gray));
+                .border_style(Style::default().fg(Color::Gray))
+                .style(Style::default().bg(Color::Black));
 
             let status_text = match app.mode {
                 AppMode::Loading => "⏳ Querying blockchain...",
@@ -261,7 +274,7 @@ fn draw_footer(frame: &mut Frame, area: Rect, app: &App) {
 
     let footer = Paragraph::new(footer_text)
         .alignment(Alignment::Center)
-        .style(Style::default().fg(Color::DarkGray));
+        .style(Style::default().fg(Color::DarkGray).bg(Color::Black));
 
     frame.render_widget(footer, area);
 }
