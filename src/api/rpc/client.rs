@@ -102,4 +102,20 @@ impl RpcClient {
 
         Ok((tx_detail, receipt, timestamp))
     }
+
+    pub async fn get_block_number(&self) -> ApiResult<u64> {
+        let request = request::get_block_number_request();
+        let response = self.execute(request).await?;
+        
+        let result: String = error::handle_rpc_response(response.result, response.error)?;
+        Ok(crate::utils::hex::parse_hex(&result))
+    }
+
+    pub async fn get_transaction_count(&self, address: &str) -> ApiResult<u64> {
+        let request = request::get_transaction_count_request(address);
+        let response = self.execute(request).await?;
+        
+        let result: String = error::handle_rpc_response(response.result, response.error)?;
+        Ok(crate::utils::hex::parse_hex(&result))
+    }
 }

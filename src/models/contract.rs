@@ -2,7 +2,7 @@
 
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct ContractInfo {
     #[serde(rename = "ContractName", default)]
     pub contract_name: String,
@@ -38,7 +38,7 @@ pub struct ContractInfo {
     pub implementation: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ContractCreationInfo {
     #[allow(dead_code)]
     #[serde(rename = "contractAddress")]
@@ -89,4 +89,51 @@ pub struct ContractTransaction {
     pub method_id: String,
     #[serde(rename = "functionName")]
     pub function_name: String,
+}
+
+impl ContractTransaction {
+    pub fn value_eth(&self) -> f64 {
+        let wei = crate::utils::hex::parse_hex(&self.value);
+        wei as f64 / 1e18
+    }
+
+    pub fn is_success(&self) -> bool {
+        self.status == "1"
+    }
+}
+
+// Display-ready contract for TUI
+#[derive(Debug, Clone)]
+pub struct ContractDisplay {
+    pub address: String,
+    pub balance_eth: f64,
+    pub usd_value: Option<String>,
+    pub name: Option<String>,
+    pub symbol: Option<String>,
+    pub creator: Option<String>,
+    pub creation_transaction: Option<String>,
+    pub compiler: Option<String>,
+    pub is_proxy: bool,
+    pub implementation: Option<String>,
+    pub transaction_count: usize,
+    pub recent_transactions: Vec<ContractTransaction>,
+}
+
+impl ContractDisplay {
+    pub fn new(address: String) -> Self {
+        Self {
+            address,
+            balance_eth: 0.0,
+            usd_value: None,
+            name: None,
+            symbol: None,
+            creator: None,
+            creation_transaction: None,
+            compiler: None,
+            is_proxy: false,
+            implementation: None,
+            transaction_count: 0,
+            recent_transactions: Vec::new(),
+        }
+    }
 }

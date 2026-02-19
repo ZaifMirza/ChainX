@@ -3,6 +3,7 @@
 use crate::error::Result;
 
 #[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct ChainConfig {
     pub name: &'static str,
     pub chain_id: &'static str,

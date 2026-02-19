@@ -25,7 +25,7 @@ pub async fn get_eth_price(api_key: &str) -> ApiResult<(f64, f64)> {
 
     let (ethusd, ethbtc) = parser::ResponseParser::parse_eth_price(&data)?;
 
-    println!("💰 ETH Price: ${} USD | {} BTC", ethusd, ethbtc);
+    // Price fetched successfully (no print in TUI mode)
 
     // Update cache
     GLOBAL_PRICE_CACHE.set(ethusd, ethbtc).await;
