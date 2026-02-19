@@ -1,4 +1,4 @@
-# 🔗 ChainX - Ethereum Blockchain Explorer
+# 🔗 ChainX - Terminal Blockchain Explorer
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Version">
@@ -6,20 +6,20 @@
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-green" alt="Platform">
 </p>
 
-ChainX is a powerful command-line blockchain explorer for Ethereum and EVM-compatible networks. It allows you to查询 transactions, blocks, addresses, and smart contracts directly from your terminal.
+ChainX is a beautiful Terminal User Interface (TUI) blockchain explorer for Ethereum. Query transactions, blocks, addresses, and smart contracts directly from your terminal with a modern, interactive interface.
 
 ---
 
 ## ✨ Features
 
-- **🔍 Multi-Chain Support** - Query 11+ blockchain networks
+- **🖥️ Terminal UI** - Modern TUI built with ratatui for an immersive experience
+- **💰 Live ETH Price** - Real-time ETH/USD price updates every 10 seconds
 - **📦 Block Details** - View block information, transactions, and rewards
 - **💳 Address Queries** - Check wallet balances and token holdings
 - **📄 Transaction Details** - Full transaction information with fees
 - **📜 Smart Contract Info** - Contract metadata, creation details, and transactions
-- **💰 ETH Price** - Real-time ETH price display
 - **🛡️ Security** - Scam/spoofed token filtering
-- **♾️ Interactive Loop** - Continuous querying without restarting
+- **⌨️ Keyboard Navigation** - Vim-style shortcuts for power users
 
 ---
 
@@ -57,11 +57,41 @@ cargo run
 
 ## 📖 Usage
 
-### Running ChainX
+### Interface Layout
 
-```bash
-cargo run
 ```
+┌─────────────────────────────────────────────────────────┐
+│ ETH: $3456.78          ChainX               ● Ethereum  │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                    [Main Content Area]                  │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ [Input Box]                                             │
+├─────────────────────────────────────────────────────────┤
+│ i: Input | h: Home | q: Quit | ↑↓: Scroll              │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Header:**
+- **Left:** Live ETH/USD price (updates every 10 seconds)
+- **Center:** ChainX logo
+- **Right:** Chain indicator (● Ethereum)
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `i` or `/` | Enter input mode |
+| `Enter` | Submit query |
+| `Esc` | Cancel input / Exit input mode |
+| `h` | Go to home screen |
+| `q` | Quit application |
+| `↑` / `↓` | Scroll content up/down |
+| `j` / `k` | Scroll content up/down (vim-style) |
+| `PgUp` / `PgDn` | Fast scroll |
+| `Home` | Jump to top |
+| `End` | Jump to bottom |
 
 ### Input Types
 
@@ -73,48 +103,44 @@ ChainX automatically detects what you're querying based on the input format:
 | `0x...` (66 chars) | `0x1234567890abcdef1234567890abcdef12345678...` | Transaction Hash |
 | Number | `18547293` or `0x11a3b2e` | Block Number |
 
-### Exit Commands
-
-To exit the program, type:
-- `quit`
-- `exit`
-- `q`
-- `x`
-
 ---
 
-## 📊 Output Examples
+## 📊 Query Examples
 
 ### Transaction Query
 
 When you enter a **transaction hash** (0x...):
 
 ```
-╔═══════════════════════════════════════════════════════════╗
-║                 TRANSACTION DETAILS                       ║
-╠═══════════════════════════════════════════════════════════╣
-║  Transaction Hash:   0xabc123...def456                     ║
-║  Status:            ✅ Success                             ║
-║  Block:            18547293                               ║
-║  Timestamp:        2024-01-15 14:32:15                   ║
-║  From:             0x742d35Cc6634C0532925a...             ║
-║  To:               0xdAC17F958D2ee523a2206206994597C13D... ║
-║  Value:            1.50000000 ETH                         ║
-║  Transaction Fee:  0.00250000 ETH                         ║
-║  Gas Price:        25.000000 Gwei                         ║
-╚═══════════════════════════════════════════════════════════╝
+┌─────────────────────────────────────────────────────────┐
+│              Transaction Details                        │
+├─────────────────────────────────────────────────────────┤
+│ Hash:            0xabc123...def456                      │
+│ Status:          ✅ Success                             │
+│ Block:           18547293                               │
+│ Timestamp:       2024-01-15 14:32:15 UTC                │
+│ From:            0x742d35Cc6634C0532925a3b...           │
+│ To:              0xdAC17F958D2ee523a2206206994597C13D...│
+│ Value:           1.50000000 ETH                         │
+│                                                         │
+│ Gas Information                                         │
+│ Gas Used:        21000                                  │
+│ Gas Price:       25.000000 Gwei                         │
+│ Transaction Fee: 0.00250000 ETH                         │
+│ Nonce:           45                                     │
+└─────────────────────────────────────────────────────────┘
 ```
 
 **Fields Displayed:**
 - Transaction Hash
 - Status (Success/Failure)
-- Block Number
+- Block Number & Confirmations
 - Timestamp
-- From Address
-- To Address
+- From/To Addresses
 - Value Transferred
-- Transaction Fee
-- Gas Price
+- Gas Used, Gas Price, Transaction Fee
+- Nonce
+- Input Data (if present)
 
 ---
 
@@ -123,38 +149,42 @@ When you enter a **transaction hash** (0x...):
 When you enter a **block number**:
 
 ```
-╔═══════════════════════════════════════════════════════════╗
-║                    BLOCK DETAILS                          ║
-╠═══════════════════════════════════════════════════════════╣
-║  Block Height:      18547293                              ║
-║  Status:            Confirmed                              ║
-║  Timestamp:         2024-01-15 14:32:15                   ║
-║  Transactions:      142                                    ║
-║  Withdrawals:      32                                     ║
-║  Block Reward:     0.0000 ETH                            ║
-║  Gas Used:         14,521,876 (87.5%)                     ║
-╠═══════════════════════════════════════════════════════════╣
-║  Block Hash:       0xdef789...abc123                      ║
-║  Parent Hash:      0x456abc...789def                      ║
-║  Miner:           0x952B9003CE6CA4B5C...                  ║
-║  Gas Limit:       30,000,000                              ║
-║  Difficulty:      52,456,789,123,456                       ║
-╚═══════════════════════════════════════════════════════════╝
+┌─────────────────────────────────────────────────────────┐
+│                  Block Details                          │
+├─────────────────────────────────────────────────────────┤
+│ Block Number:    18547293                               │
+│ Status:          Confirmed                              │
+│ Timestamp:       2024-01-15 14:32:15 UTC                │
+│ Age:             2h 15m ago                             │
+│                                                         │
+│ Block Statistics                                        │
+│ Transactions:    142                                    │
+│ Withdrawals:     32                                     │
+│                                                         │
+│ Gas Information                                         │
+│ Gas Used:        14,521,876                             │
+│ Gas %:           87.5%                                  │
+│ Gas Limit:       30,000,000                             │
+│ Block Reward:    Variable (EIP-1559)                    │
+│                                                         │
+│ Block Hashes                                            │
+│ Block Hash:      0xdef789...abc123                      │
+│ Parent Hash:     0x456abc...789def                      │
+│ State Root:      0xabc123...def789                      │
+│ Miner:           0x952B9003CE6CA4B5C...                 │
+└─────────────────────────────────────────────────────────┘
 ```
 
 **Fields Displayed:**
 - Block Height/Number
-- Status
-- Timestamp
-- Transaction Count
-- Withdrawal Count
+- Confirmation Status
+- Timestamp & Age
+- Transaction & Withdrawal Count
+- Gas Usage & Limit
 - Block Reward
-- Gas Used (amount and percentage)
-- Block Hash
-- Parent Hash
+- Block, Parent, and State Hashes
 - Miner Address
-- Gas Limit
-- Difficulty
+- Extra Data
 
 ---
 
@@ -163,26 +193,31 @@ When you enter a **block number**:
 When you enter an **Ethereum address** (0x...):
 
 ```
-╔═══════════════════════════════════════════════════════════╗
-║                  ADDRESS DETAILS                          ║
-╠═══════════════════════════════════════════════════════════╣
-║  Address:           0x742d35Cc6634C0532925a3b...          ║
-║  Type:             EOA (Wallet)                           ║
-║  Balance:          2.54320000 ETH                         ║
-║  USD Value:        $4,832.00 USD                          ║
-║  Nonce (TX Count): 45                                     ║
-╠═══════════════════════════════════════════════════════════╣
-║  Contract Code:    None (EOA)                            ║
-╚═══════════════════════════════════════════════════════════╝
+┌─────────────────────────────────────────────────────────┐
+│                   Address Details                       │
+├─────────────────────────────────────────────────────────┤
+│ Address:         0x742d35Cc6634C0532925a3b...           │
+│ Type:            EOA (Wallet)                           │
+│                                                         │
+│ Balance                                                 │
+│ ETH Balance:     2.54320000 ETH                         │
+│ USD Value:       $4,832.00 USD                          │
+│ Transaction Count: 45                                   │
+│                                                         │
+│ Token Balances                                          │
+│   • 1000.0000 USDT                                      │
+│   • 50.5000 LINK                                        │
+│   • 10000.0000 SHIB                                     │
+└─────────────────────────────────────────────────────────┘
 ```
 
 **Fields Displayed:**
 - Address
 - Type (EOA or Smart Contract)
 - ETH Balance
-- USD Value (calculated from ETH price)
-- Nonce (Transaction Count)
-- Contract Code Status
+- USD Value (calculated from live ETH price)
+- Transaction Count
+- Token Balances (scam tokens filtered)
 
 ---
 
@@ -191,41 +226,45 @@ When you enter an **Ethereum address** (0x...):
 When you enter a **smart contract address** (0x...):
 
 ```
-╔════════════════════════════════════════════════════════════════════════════════════╗
-║                              CONTRACT DETAILS                                      ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  Contract:          0xdAC17F958D2ee523a2206206994597C13D831ec7                     ║
-║  ETH Balance:      5.23400000 ETH                                                 ║
-║  USD Value:        $9,944.60 USD                                                  ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  CONTRACT INFORMATION                                                              ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  Name:             Tether USD (USDT)                                               ║
-║  Creator:         0x5E4c3a55eE1a4C22B4d53C0903B3A5C2...                           ║
-║  Compiler:         v0.8.19+commit.7dd6d404                                        ║
-║  Creation Tx:     0x789abc...def123                                              ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  LAST 5 TRANSACTIONS                                                               ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  Transaction #1                                                                  ║
-║  Hash:    0x456def789...abc123                                                    ║
-║  Value:   0.050000 ETH                                                           ║
-║  Status:  ✅                                                                      ║
-║  Function: transfer                                                               ║
-...
-╚════════════════════════════════════════════════════════════════════════════════════╝
+┌─────────────────────────────────────────────────────────┐
+│                  Contract Details                       │
+├─────────────────────────────────────────────────────────┤
+│ Contract Address: 0xdAC17F958D2ee523a2206206994597C13D...│
+│                                                         │
+│ Balance                                                 │
+│ ETH Balance:      5.23400000 ETH                        │
+│ USD Value:        $9,944.60 USD                         │
+│                                                         │
+│ Contract Information                                    │
+│ Name:             Tether USD (USDT)                     │
+│ Symbol:           USDT                                  │
+│ Creator:          0x5E4c3a55eE1a4C22B4d53C0903B3A5C2... │
+│ Creation Tx:      0x789abc...def123                     │
+│ Compiler:         v0.8.19+commit.7dd6d404               │
+│ Type:             Proxy Contract                        │
+│ Implementation:   0x1234...5678                         │
+│ Total Transactions: 125043                              │
+│                                                         │
+│ Recent Transactions                                     │
+│   #1 ──────────────────────────────────────────         │
+│     Hash:    0x456def...abc123                          │
+│     From:    0xabcd...1234                              │
+│     To:      0xefgh...5678                              │
+│     Value:   0.050000 ETH                               │
+│     Status:  ✅ Success                                 │
+└─────────────────────────────────────────────────────────┘
 ```
 
 **Fields Displayed:**
 - Contract Address
-- ETH Balance
-- USD Value
-- Contract Name
-- Contract Creator
+- ETH Balance & USD Value
+- Contract Name & Symbol
+- Creator Address
+- Creation Transaction
 - Compiler Version
-- Creation Transaction Hash
-- Contract Type (Proxy if applicable)
+- Contract Type (Proxy/Standard)
 - Implementation Address (for proxies)
+- Total Transaction Count
 - Recent Transactions (last 5)
 
 ---
@@ -245,6 +284,8 @@ When you enter a **smart contract address** (0x...):
 | Fantom | 250 | FTM | rpc.fantom.network |
 | Goerli (Testnet) | 5 | ETH | publicnode.com |
 | Sepolia (Testnet) | 11155111 | ETH | publicnode.com |
+
+**Note:** Currently optimized for Ethereum mainnet. Multi-chain support coming soon.
 
 ---
 
@@ -273,7 +314,7 @@ ETHERSCAN_API_KEY=your_api_key_here
 
 ```
 src/
-├── main.rs              # Entry point
+├── main.rs              # Entry point & TUI initialization
 ├── app/                 # Application logic
 │   ├── config.rs        # Configuration
 │   └── input.rs         # Input parsing
@@ -285,23 +326,28 @@ src/
 │   ├── block.rs         # Block queries
 │   ├── contract.rs      # Contract queries
 │   └── transaction.rs   # Transaction queries
+├── tui/                 # Terminal UI
+│   ├── app.rs           # TUI app state
+│   ├── ui.rs            # UI rendering
+│   ├── events.rs        # Keyboard events
+│   └── widgets/         # Display widgets
 ├── config/              # Chain configuration
-├── formatting/         # Output formatting
 ├── models/              # Data models
 ├── utils/               # Utility functions
-├── validation/         # Input validation
-└── cache/              # Price caching
+├── validation/          # Input validation
+└── cache/               # Price caching
 ```
 
 ---
 
 ## 📦 Dependencies
 
+- **ratatui** - Terminal UI framework
+- **crossterm** - Cross-platform terminal manipulation
+- **tokio** - Async runtime
 - **reqwest** - HTTP client
 - **serde** - Serialization
-- **tokio** - Async runtime
-- **clap** - CLI parsing
-- **chrono** - Date/time
+- **chrono** - Date/time handling
 - **dotenv** - Environment variables
 
 ---
@@ -323,6 +369,7 @@ MIT License - feel free to use this project for any purpose.
 - [Ethereum Foundation](https://ethereum.org)
 - [Etherscan](https://etherscan.io)
 - [Public RPC Nodes](https://www.publicnode.com)
+- [Ratatui](https://github.com/ratatui-org/ratatui) - Terminal UI library
 
 ---
 
