@@ -8,6 +8,7 @@ pub fn wei_to_eth(wei: &str) -> f64 {
     wei_val as f64 / WEI_PER_ETH
 }
 
+#[allow(dead_code)]
 pub fn wei_to_gwei(wei: &str) -> f64 {
     let wei_val = parse_hex_u128(wei);
     wei_val as f64 / WEI_PER_GWEI

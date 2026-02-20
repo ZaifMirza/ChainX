@@ -14,6 +14,7 @@ pub const BOX_WIDTH: usize = 61;
 
 // Ethereum constants
 pub const WEI_PER_ETH: f64 = 1e18;
+#[allow(dead_code)]
 pub const WEI_PER_GWEI: f64 = 1e9;
 pub const ETH_ADDRESS_LENGTH: usize = 42;
 #[allow(dead_code)]

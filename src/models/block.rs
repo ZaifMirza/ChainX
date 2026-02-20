@@ -31,6 +31,7 @@ pub struct BlockInfo {
     #[serde(rename = "extraData")]
     pub extra_data: Option<String>,
     #[serde(rename = "baseFeePerGas")]
+    #[allow(dead_code)]
     pub base_fee_per_gas: Option<String>,
 }
 

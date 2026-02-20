@@ -4,6 +4,7 @@ use crate::models::token::TokenTransfer;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
+#[allow(dead_code)]
 pub struct AddressInfo {
     pub address: String,
     pub balance: String,
@@ -14,24 +15,25 @@ pub struct AddressInfo {
 }
 
 impl AddressInfo {
+    #[allow(dead_code)]
     pub fn balance_eth(&self) -> f64 {
         let wei = crate::utils::hex::parse_hex(&self.balance);
         wei as f64 / 1e18
     }
 
-    pub fn is_contract(&self) -> bool {
-        self.contract_code
-            .as_ref()
-            .map(|code| !code.is_empty() && code != "0x")
-            .unwrap_or(false)
-    }
+    // pub fn is_contract(&self) -> bool {
+    //     self.contract_code
+    //         .as_ref()
+    //         .map(|code| !code.is_empty() && code != "0x")
+    //         .unwrap_or(false)
+    // }
 
-    pub fn tx_count(&self) -> u64 {
-        self.transaction_count
-            .as_deref()
-            .map(|c| crate::utils::hex::parse_hex(c))
-            .unwrap_or(0)
-    }
+    // pub fn tx_count(&self) -> u64 {
+    //     self.transaction_count
+    //         .as_deref()
+    //         .map(|c| crate::utils::hex::parse_hex(c))
+    //         .unwrap_or(0)
+    // }
 }
 
 // Display-ready address for TUI
@@ -49,6 +51,7 @@ pub struct AddressDisplay {
 }
 
 impl AddressDisplay {
+    #[allow(dead_code)]
     pub fn new(address: String) -> Self {
         Self {
             address,
@@ -65,6 +68,7 @@ impl AddressDisplay {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct TokenBalanceDisplay {
     pub symbol: Option<String>,
     pub name: Option<String>,

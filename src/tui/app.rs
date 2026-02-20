@@ -6,7 +6,7 @@ use crate::error::Result;
 use crate::models::{
     AddressDisplay, BlockDisplay, ContractDisplay, TransactionDisplay,
 };
-use crate::app::input::{InputParser, InputType};
+use crate::app::input::{InputParser};
 use std::sync::{Arc, RwLock};
 use tokio::time::{interval, Duration};
 
@@ -14,7 +14,9 @@ use tokio::time::{interval, Duration};
 pub enum AppMode {
     Normal,
     Input,
+    ApiKeySetup,
     Loading,
+    #[allow(dead_code)]
     Error,
 }
 
@@ -26,6 +28,7 @@ pub enum ViewState {
     Address(Box<AddressDisplay>),
     Contract(Box<ContractDisplay>),
     Error(String),
+    ApiKeyRequired(String),
 }
 
 pub struct App {
@@ -37,6 +40,8 @@ pub struct App {
     pub scroll_offset: u16,
     pub should_quit: bool,
     pub eth_price: Arc<RwLock<f64>>,
+    pub api_key_input: String,
+    pub api_key_cursor: usize,
 }
 
 impl App {
@@ -45,29 +50,30 @@ impl App {
         let state = AppState::new(app_config);
         let eth_price = Arc::new(RwLock::new(0.0));
 
-        // Spawn background task to update ETH price every 10 seconds
-        let api_key = state.config.etherscan_api_key.clone();
-        let price_clone = Arc::clone(&eth_price);
-        tokio::spawn(async move {
-            let mut ticker = interval(Duration::from_secs(10));
-            
-            // Initial fetch
-            if let Ok((price, _)) = crate::api::get_eth_price(&api_key).await {
-                if let Ok(mut p) = price_clone.write() {
-                    *p = price;
-                }
-            }
-            
-            // Update every 10 seconds
-            loop {
-                ticker.tick().await;
+        // Spawn background task to update ETH price every 10 seconds (only if API key is set)
+        if let Some(api_key) = state.config.etherscan_api_key.clone() {
+            let price_clone = Arc::clone(&eth_price);
+            tokio::spawn(async move {
+                let mut ticker = interval(Duration::from_secs(10));
+                
+                // Initial fetch
                 if let Ok((price, _)) = crate::api::get_eth_price(&api_key).await {
                     if let Ok(mut p) = price_clone.write() {
                         *p = price;
                     }
                 }
-            }
-        });
+                
+                // Update every 10 seconds
+                loop {
+                    ticker.tick().await;
+                    if let Ok((price, _)) = crate::api::get_eth_price(&api_key).await {
+                        if let Ok(mut p) = price_clone.write() {
+                            *p = price;
+                        }
+                    }
+                }
+            });
+        }
 
         Ok(Self {
             mode: AppMode::Normal,
@@ -78,6 +84,8 @@ impl App {
             scroll_offset: 0,
             should_quit: false,
             eth_price,
+            api_key_input: String::new(),
+            api_key_cursor: 0,
         })
     }
 
@@ -103,15 +111,39 @@ impl App {
         self.mode = AppMode::Normal;
     }
 
+    pub fn enter_api_key_setup(&mut self) {
+        self.mode = AppMode::ApiKeySetup;
+        self.api_key_input.clear();
+        self.api_key_cursor = 0;
+    }
+
+    pub fn exit_api_key_setup(&mut self) {
+        self.mode = AppMode::Normal;
+        self.api_key_input.clear();
+        self.api_key_cursor = 0;
+    }
+
     pub fn insert_char(&mut self, c: char) {
         self.input.insert(self.cursor_position, c);
         self.cursor_position += 1;
+    }
+
+    pub fn insert_api_key_char(&mut self, c: char) {
+        self.api_key_input.insert(self.api_key_cursor, c);
+        self.api_key_cursor += 1;
     }
 
     pub fn delete_char(&mut self) {
         if self.cursor_position > 0 {
             self.cursor_position -= 1;
             self.input.remove(self.cursor_position);
+        }
+    }
+
+    pub fn delete_api_key_char(&mut self) {
+        if self.api_key_cursor > 0 {
+            self.api_key_cursor -= 1;
+            self.api_key_input.remove(self.api_key_cursor);
         }
     }
 
@@ -127,12 +159,76 @@ impl App {
         }
     }
 
+    pub fn move_api_key_cursor_left(&mut self) {
+        if self.api_key_cursor > 0 {
+            self.api_key_cursor -= 1;
+        }
+    }
+
+    pub fn move_api_key_cursor_right(&mut self) {
+        if self.api_key_cursor < self.api_key_input.len() {
+            self.api_key_cursor += 1;
+        }
+    }
+
     pub fn move_cursor_start(&mut self) {
         self.cursor_position = 0;
     }
 
     pub fn move_cursor_end(&mut self) {
         self.cursor_position = self.input.len();
+    }
+
+    pub fn move_api_key_cursor_start(&mut self) {
+        self.api_key_cursor = 0;
+    }
+
+    pub fn move_api_key_cursor_end(&mut self) {
+        self.api_key_cursor = self.api_key_input.len();
+    }
+
+    pub async fn submit_api_key(&mut self) -> Result<()> {
+        let api_key = self.api_key_input.trim().to_string();
+        
+        if api_key.is_empty() {
+            self.view_state = ViewState::Error("API key cannot be empty".to_string());
+            self.mode = AppMode::Normal;
+            return Ok(());
+        }
+
+        // Save the API key
+        self.state.config.set_api_key(api_key)?;
+        
+        // Start the price update task
+        let api_key_clone = self.state.config.etherscan_api_key.clone().unwrap();
+        let price_clone = Arc::clone(&self.eth_price);
+        tokio::spawn(async move {
+            let mut ticker = interval(Duration::from_secs(10));
+            
+            // Initial fetch
+            if let Ok((price, _)) = crate::api::get_eth_price(&api_key_clone).await {
+                if let Ok(mut p) = price_clone.write() {
+                    *p = price;
+                }
+            }
+            
+            // Update every 10 seconds
+            loop {
+                ticker.tick().await;
+                if let Ok((price, _)) = crate::api::get_eth_price(&api_key_clone).await {
+                    if let Ok(mut p) = price_clone.write() {
+                        *p = price;
+                    }
+                }
+            }
+        });
+
+        self.view_state = ViewState::Home;
+        self.mode = AppMode::Normal;
+        self.api_key_input.clear();
+        self.api_key_cursor = 0;
+        
+        Ok(())
     }
 
     pub async fn submit_input(&mut self) -> Result<()> {
@@ -152,7 +248,14 @@ impl App {
                         self.scroll_offset = 0;
                     }
                     Err(e) => {
-                        self.view_state = ViewState::Error(format!("Error: {}", e));
+                        let error_msg = e.to_string();
+                        if error_msg.contains("API key not configured") {
+                            self.view_state = ViewState::ApiKeyRequired(
+                                "Etherscan API key required for address/contract queries. Press 's' to set up your API key.".to_string()
+                            );
+                        } else {
+                            self.view_state = ViewState::Error(format!("Error: {}", e));
+                        }
                     }
                 }
             }

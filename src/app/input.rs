@@ -41,14 +41,3 @@ impl InputParser {
         Ok(InputType::TransactionHash(trimmed.to_string()))
     }
 }
-
-pub fn read_user_input() -> Result<String> {
-    println!("Enter transaction hash (0x...), block number, contract address (0x...), or 'quit'/'exit' to exit:");
-
-    let mut input = String::new();
-    std::io::stdin()
-        .read_line(&mut input)
-        .map_err(|e| ExplorerError::ValidationError(format!("Failed to read input: {}", e)))?;
-
-    Ok(input)
-}

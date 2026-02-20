@@ -23,6 +23,7 @@ pub struct TransactionDetail {
     pub input: String,
     #[serde(rename = "nonce")]
     pub nonce: Option<String>,
+    #[allow(dead_code)]
     #[serde(rename = "gas")]
     pub gas: Option<String>,
 }
@@ -59,8 +60,10 @@ pub struct TransactionReceipt {
     pub status: Option<String>,
     #[serde(rename = "gasUsed")]
     pub gas_used: Option<String>,
+    #[allow(dead_code)]
     #[serde(rename = "transactionHash")]
     pub transaction_hash: Option<String>,
+    #[allow(dead_code)]
     #[serde(rename = "blockNumber")]
     pub block_number: Option<String>,
 }

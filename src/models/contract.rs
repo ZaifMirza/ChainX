@@ -87,6 +87,7 @@ pub struct ContractTransaction {
     #[allow(dead_code)]
     #[serde(rename = "methodId")]
     pub method_id: String,
+    #[allow(dead_code)]
     #[serde(rename = "functionName")]
     pub function_name: String,
 }

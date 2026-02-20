@@ -4,6 +4,7 @@ use crate::models::{TransactionDetail, TransactionReceipt};
 use crate::utils::hex::parse_hex;
 use crate::utils::{format_timestamp, get_status_display, wei_to_eth, wei_to_gwei};
 
+#[allow(dead_code)]
 pub struct TransactionFormatter<'a> {
     tx: &'a TransactionDetail,
     receipt: &'a Option<TransactionReceipt>,
@@ -12,6 +13,7 @@ pub struct TransactionFormatter<'a> {
 }
 
 impl<'a> TransactionFormatter<'a> {
+    #[allow(dead_code)]
     pub fn new(
         tx: &'a TransactionDetail,
         receipt: &'a Option<TransactionReceipt>,
@@ -97,11 +99,13 @@ impl<'a> TransactionFormatter<'a> {
         output
     }
 
+    #[allow(dead_code)]
     pub fn print(&self) {
         println!("{}", self.format());
     }
 }
 
+#[allow(dead_code)]
 pub fn print_transaction_details(
     tx: &TransactionDetail,
     receipt: &Option<TransactionReceipt>,

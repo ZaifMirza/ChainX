@@ -2,6 +2,7 @@
 // Main entry point
 
 mod api;
+mod api_key;
 mod app;
 mod cache;
 mod commands;
@@ -24,7 +25,7 @@ use std::io;
 
 use tui::{
     app::{App, AppMode},
-    events::{handle_input_mode, handle_normal_mode, AppAction, EventHandler},
+    events::{handle_api_key_mode, handle_input_mode, handle_normal_mode, AppAction, EventHandler},
     ui::draw,
 };
 
@@ -97,6 +98,7 @@ async fn run_app<B: Backend>(
                         handle_normal_mode(key)
                     }
                     AppMode::Input => handle_input_mode(key),
+                    AppMode::ApiKeySetup => handle_api_key_mode(key),
                 };
 
                 if let Some(action) = action {
@@ -142,5 +144,18 @@ async fn handle_action(app: &mut App, action: AppAction) {
         ScrollToTop => app.reset_scroll(),
         ScrollToBottom => app.scroll_down(1000),
         GoHome => app.go_home(),
+        EnterApiKeySetup => app.enter_api_key_setup(),
+        CancelApiKeySetup => app.exit_api_key_setup(),
+        SubmitApiKey => {
+            if let Err(e) = app.submit_api_key().await {
+                app.view_state = tui::app::ViewState::Error(format!("Error: {}", e));
+            }
+        }
+        InsertApiKeyChar(c) => app.insert_api_key_char(c),
+        DeleteApiKeyChar => app.delete_api_key_char(),
+        MoveApiKeyCursorLeft => app.move_api_key_cursor_left(),
+        MoveApiKeyCursorRight => app.move_api_key_cursor_right(),
+        MoveApiKeyCursorStart => app.move_api_key_cursor_start(),
+        MoveApiKeyCursorEnd => app.move_api_key_cursor_end(),
     }
 }

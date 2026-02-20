@@ -52,6 +52,7 @@ pub fn status_color(success: bool) -> Color {
     }
 }
 
+#[allow(dead_code)]
 pub fn status_symbol(success: bool) -> &'static str {
     if success {
         "✅"

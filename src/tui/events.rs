@@ -3,12 +3,14 @@
 use crossterm::event::{self, Event as CrosstermEvent, KeyCode, KeyEvent};
 use std::time::{Duration, Instant};
 
+#[allow(dead_code)]
 pub enum Event {
     Tick,
     Key(KeyEvent),
 }
 
 pub struct EventHandler {
+    #[allow(dead_code)]
     tick_rate: Duration,
     last_tick: Instant,
 }
@@ -21,6 +23,7 @@ impl EventHandler {
         }
     }
 
+    #[allow(dead_code)]
     pub fn next_event(&self) -> std::io::Result<Event> {
         let timeout = self
             .tick_rate
@@ -47,6 +50,7 @@ pub fn handle_normal_mode(key: KeyEvent) -> Option<AppAction> {
         KeyCode::Char('i') | KeyCode::Char('I') => Some(AppAction::EnterInput),
         KeyCode::Char('/') => Some(AppAction::EnterInput),
         KeyCode::Char('h') | KeyCode::Char('H') => Some(AppAction::GoHome),
+        KeyCode::Char('s') | KeyCode::Char('S') => Some(AppAction::EnterApiKeySetup),
         KeyCode::Up | KeyCode::Char('k') => Some(AppAction::ScrollUp),
         KeyCode::Down | KeyCode::Char('j') => Some(AppAction::ScrollDown),
         KeyCode::PageUp => Some(AppAction::ScrollUpFast),
@@ -71,6 +75,20 @@ pub fn handle_input_mode(key: KeyEvent) -> Option<AppAction> {
     }
 }
 
+pub fn handle_api_key_mode(key: KeyEvent) -> Option<AppAction> {
+    match key.code {
+        KeyCode::Enter => Some(AppAction::SubmitApiKey),
+        KeyCode::Esc => Some(AppAction::CancelApiKeySetup),
+        KeyCode::Char(c) => Some(AppAction::InsertApiKeyChar(c)),
+        KeyCode::Backspace => Some(AppAction::DeleteApiKeyChar),
+        KeyCode::Left => Some(AppAction::MoveApiKeyCursorLeft),
+        KeyCode::Right => Some(AppAction::MoveApiKeyCursorRight),
+        KeyCode::Home => Some(AppAction::MoveApiKeyCursorStart),
+        KeyCode::End => Some(AppAction::MoveApiKeyCursorEnd),
+        _ => None,
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum AppAction {
     Quit,
@@ -90,4 +108,13 @@ pub enum AppAction {
     ScrollToTop,
     ScrollToBottom,
     GoHome,
+    EnterApiKeySetup,
+    CancelApiKeySetup,
+    SubmitApiKey,
+    InsertApiKeyChar(char),
+    DeleteApiKeyChar,
+    MoveApiKeyCursorLeft,
+    MoveApiKeyCursorRight,
+    MoveApiKeyCursorStart,
+    MoveApiKeyCursorEnd,
 }

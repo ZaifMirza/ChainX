@@ -18,6 +18,13 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
             .style(Style::default().bg(Color::Black)),
         frame.area(),
     );
+    
+    // If in API key setup mode, draw the setup screen
+    if app.mode == AppMode::ApiKeySetup {
+        draw_api_key_setup(frame, frame.area(), app);
+        return;
+    }
+    
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
@@ -96,6 +103,7 @@ fn draw_main_content(frame: &mut Frame, area: Rect, app: &mut App) {
             ViewState::Address(_) => " Address Details ",
             ViewState::Contract(_) => " Contract Details ",
             ViewState::Error(_) => " Error ",
+            ViewState::ApiKeyRequired(_) => " API Key Required ",
         })
         .title_alignment(Alignment::Left);
 
@@ -103,7 +111,7 @@ fn draw_main_content(frame: &mut Frame, area: Rect, app: &mut App) {
     frame.render_widget(content_block, area);
 
     match &app.view_state {
-        ViewState::Home => draw_home_view(frame, inner_area),
+        ViewState::Home => draw_home_view(frame, inner_area, app),
         ViewState::Transaction(tx) => super::widgets::transaction::draw_transaction_widget(
             frame,
             inner_area,
@@ -123,6 +131,7 @@ fn draw_main_content(frame: &mut Frame, area: Rect, app: &mut App) {
             app.scroll_offset,
         ),
         ViewState::Error(msg) => draw_error_view(frame, inner_area, msg),
+        ViewState::ApiKeyRequired(msg) => draw_api_key_required_view(frame, inner_area, msg),
     }
 
     // Draw scrollbar
@@ -145,8 +154,11 @@ fn draw_main_content(frame: &mut Frame, area: Rect, app: &mut App) {
     );
 }
 
-fn draw_home_view(frame: &mut Frame, area: Rect) {
-    let home_text = vec![
+fn draw_home_view(frame: &mut Frame, area: Rect, app: &App) {
+    // Check if API key is configured
+    let has_api_key = app.state.config.has_api_key();
+    
+    let mut home_text = vec![
         Line::from(""),
         Line::from(Span::styled(
             "Welcome to ChainX - Terminal Blockchain Explorer",
@@ -175,20 +187,39 @@ fn draw_home_view(frame: &mut Frame, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         )),
         Line::from("  • i or /    - Enter input mode"),
+        Line::from("  • s         - Set up Etherscan API key"),
         Line::from("  • h         - Go to home screen"),
         Line::from("  • q         - Quit application"),
         Line::from("  • ↑/↓ or j/k - Scroll content"),
         Line::from("  • PgUp/PgDn - Fast scroll"),
         Line::from("  • Home/End  - Jump to top/bottom"),
         Line::from(""),
-        Line::from(""),
-        Line::from(Span::styled(
-            "Press 'i' to start exploring the blockchain!",
-            Style::default()
-                .fg(Color::Green)
-                .add_modifier(Modifier::BOLD),
-        )),
     ];
+    
+    // Add API key status
+    if has_api_key {
+        home_text.push(Line::from(Span::styled(
+            "✅ Etherscan API key configured",
+            Style::default().fg(Color::Green),
+        )));
+    } else {
+        home_text.push(Line::from(Span::styled(
+            "⚠️  Etherscan API key not configured - Press 's' to set up",
+            Style::default().fg(Color::Yellow),
+        )));
+        home_text.push(Line::from(Span::styled(
+            "    (Address and Contract queries require API key)",
+            Style::default().fg(Color::DarkGray),
+        )));
+    }
+    
+    home_text.push(Line::from(""));
+    home_text.push(Line::from(Span::styled(
+        "Press 'i' to start exploring the blockchain!",
+        Style::default()
+            .fg(Color::Green)
+            .add_modifier(Modifier::BOLD),
+    )));
 
     let home_paragraph = Paragraph::new(Text::from(home_text))
         .alignment(Alignment::Center)
@@ -222,6 +253,118 @@ fn draw_error_view(frame: &mut Frame, area: Rect, msg: &str) {
     frame.render_widget(error_paragraph, area);
 }
 
+fn draw_api_key_required_view(frame: &mut Frame, area: Rect, msg: &str) {
+    let text = vec![
+        Line::from(""),
+        Line::from(Span::styled(
+            "🔑 API Key Required",
+            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+        )),
+        Line::from(""),
+        Line::from(msg),
+        Line::from(""),
+        Line::from(""),
+        Line::from(Span::styled(
+            "Address and Contract queries require an Etherscan API key.",
+            Style::default().fg(Color::Gray),
+        )),
+        Line::from(""),
+        Line::from("To get a free API key:"),
+        Line::from("  1. Visit https://etherscan.io/apis"),
+        Line::from("  2. Create a free account"),
+        Line::from("  3. Generate an API key"),
+        Line::from(""),
+        Line::from(Span::styled(
+            "Press 's' to set up your API key",
+            Style::default().fg(Color::Green).add_modifier(Modifier::BOLD),
+        )),
+        Line::from(Span::styled(
+            "Press 'h' to return home",
+            Style::default().fg(Color::Gray),
+        )),
+    ];
+
+    let paragraph = Paragraph::new(Text::from(text))
+        .alignment(Alignment::Center)
+        .wrap(Wrap { trim: true })
+        .style(Style::default().bg(Color::Black));
+
+    frame.render_widget(paragraph, area);
+}
+
+fn draw_api_key_setup(frame: &mut Frame, area: Rect, app: &App) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(2)
+        .constraints([
+            Constraint::Length(3),  // Title
+            Constraint::Length(3),  // Input box
+            Constraint::Min(0),     // Instructions
+        ])
+        .split(area);
+
+    // Title
+    let title = Paragraph::new(Span::styled(
+        "🔑 Etherscan API Key Setup",
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
+    ))
+    .alignment(Alignment::Center);
+    frame.render_widget(title, chunks[0]);
+
+    // Input box
+    let input_block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(Color::Yellow))
+        .title(" Enter your API key ")
+        .title_alignment(Alignment::Left)
+        .style(Style::default().bg(Color::Black));
+
+    // Show masked API key for security
+    let masked_input = "*".repeat(app.api_key_input.len());
+    let input_text = Paragraph::new(masked_input)
+        .block(input_block)
+        .style(Style::default().fg(Color::White));
+
+    frame.render_widget(input_text, chunks[1]);
+
+    // Show cursor
+    frame.set_cursor_position(ratatui::layout::Position::new(
+        chunks[1].x + app.api_key_cursor as u16 + 1,
+        chunks[1].y + 1,
+    ));
+
+    // Instructions
+    let instructions = vec![
+        Line::from(""),
+        Line::from(Span::styled(
+            "Instructions:",
+            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+        )),
+        Line::from("  1. Visit https://etherscan.io/apis"),
+        Line::from("  2. Create a free account if you don't have one"),
+        Line::from("  3. Generate an API key and paste it above"),
+        Line::from(""),
+        Line::from(Span::styled(
+            "Your API key will be stored locally and securely.",
+            Style::default().fg(Color::Gray),
+        )),
+        Line::from(""),
+        Line::from(Span::styled(
+            "Press Enter to save | Esc to cancel",
+            Style::default().fg(Color::Green),
+        )),
+    ];
+
+    let instructions_paragraph = Paragraph::new(Text::from(instructions))
+        .alignment(Alignment::Center)
+        .wrap(Wrap { trim: true })
+        .style(Style::default().bg(Color::Black));
+
+    frame.render_widget(instructions_paragraph, chunks[2]);
+}
+
 fn draw_input_or_status(frame: &mut Frame, area: Rect, app: &App) {
     match app.mode {
         AppMode::Input => {
@@ -253,7 +396,7 @@ fn draw_input_or_status(frame: &mut Frame, area: Rect, app: &App) {
             let status_text = match app.mode {
                 AppMode::Loading => "⏳ Querying blockchain...",
                 AppMode::Error => "❌ An error occurred",
-                _ => "Press 'i' to search, 'h' for home, 'q' to quit",
+                _ => "Press 'i' to search, 's' for API key setup, 'h' for home, 'q' to quit",
             };
 
             let status_paragraph = Paragraph::new(status_text)
@@ -269,7 +412,8 @@ fn draw_input_or_status(frame: &mut Frame, area: Rect, app: &App) {
 fn draw_footer(frame: &mut Frame, area: Rect, app: &App) {
     let footer_text = match app.mode {
         AppMode::Input => "Enter: Submit | Esc: Cancel | ↑/↓: History",
-        _ => "i: Input | h: Home | q: Quit | ↑↓: Scroll",
+        AppMode::ApiKeySetup => "Enter: Save | Esc: Cancel",
+        _ => "i: Input | s: API Key | h: Home | q: Quit | ↑↓: Scroll",
     };
 
     let footer = Paragraph::new(footer_text)
