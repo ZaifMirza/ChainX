@@ -6,7 +6,7 @@ use crate::error::Result;
 use crate::models::{
     AddressDisplay, BlockDisplay, ContractDisplay, TransactionDisplay,
 };
-use crate::app::input::{InputParser};
+use crate::app::input::InputParser;
 use std::sync::{Arc, RwLock};
 use tokio::time::{interval, Duration};
 
@@ -52,27 +52,7 @@ impl App {
 
         // Spawn background task to update ETH price every 10 seconds (only if API key is set)
         if let Some(api_key) = state.config.etherscan_api_key.clone() {
-            let price_clone = Arc::clone(&eth_price);
-            tokio::spawn(async move {
-                let mut ticker = interval(Duration::from_secs(10));
-                
-                // Initial fetch
-                if let Ok((price, _)) = crate::api::get_eth_price(&api_key).await {
-                    if let Ok(mut p) = price_clone.write() {
-                        *p = price;
-                    }
-                }
-                
-                // Update every 10 seconds
-                loop {
-                    ticker.tick().await;
-                    if let Ok((price, _)) = crate::api::get_eth_price(&api_key).await {
-                        if let Ok(mut p) = price_clone.write() {
-                            *p = price;
-                        }
-                    }
-                }
-            });
+            spawn_price_update_task(api_key, Arc::clone(&eth_price));
         }
 
         Ok(Self {
@@ -190,6 +170,7 @@ impl App {
     pub async fn submit_api_key(&mut self) -> Result<()> {
         let api_key = self.api_key_input.trim().to_string();
         
+        // Early return for empty key
         if api_key.is_empty() {
             self.view_state = ViewState::Error("API key cannot be empty".to_string());
             self.mode = AppMode::Normal;
@@ -201,28 +182,9 @@ impl App {
         
         // Start the price update task
         let api_key_clone = self.state.config.etherscan_api_key.clone().unwrap();
-        let price_clone = Arc::clone(&self.eth_price);
-        tokio::spawn(async move {
-            let mut ticker = interval(Duration::from_secs(10));
-            
-            // Initial fetch
-            if let Ok((price, _)) = crate::api::get_eth_price(&api_key_clone).await {
-                if let Ok(mut p) = price_clone.write() {
-                    *p = price;
-                }
-            }
-            
-            // Update every 10 seconds
-            loop {
-                ticker.tick().await;
-                if let Ok((price, _)) = crate::api::get_eth_price(&api_key_clone).await {
-                    if let Ok(mut p) = price_clone.write() {
-                        *p = price;
-                    }
-                }
-            }
-        });
+        spawn_price_update_task(api_key_clone, Arc::clone(&self.eth_price));
 
+        // Reset state
         self.view_state = ViewState::Home;
         self.mode = AppMode::Normal;
         self.api_key_input.clear();
@@ -234,36 +196,20 @@ impl App {
     pub async fn submit_input(&mut self) -> Result<()> {
         let trimmed = self.input.trim();
         
+        // Early return for empty input
         if trimmed.is_empty() {
             return Ok(());
         }
 
         self.mode = AppMode::Loading;
 
-        match InputParser::parse(trimmed) {
-            Ok(input_type) => {
-                match CommandRouter::route_tui(&self.state, input_type).await {
-                    Ok(result) => {
-                        self.view_state = result;
-                        self.scroll_offset = 0;
-                    }
-                    Err(e) => {
-                        let error_msg = e.to_string();
-                        if error_msg.contains("API key not configured") {
-                            self.view_state = ViewState::ApiKeyRequired(
-                                "Etherscan API key required for address/contract queries. Press 's' to set up your API key.".to_string()
-                            );
-                        } else {
-                            self.view_state = ViewState::Error(format!("Error: {}", e));
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                self.view_state = ViewState::Error(format!("Invalid input: {}", e));
-            }
-        }
+        // Parse input and route to appropriate handler
+        let view_state = match InputParser::parse(trimmed) {
+            Ok(input_type) => handle_route_result(CommandRouter::route_tui(&self.state, input_type).await),
+            Err(e) => ViewState::Error(format!("Invalid input: {}", e)),
+        };
 
+        self.view_state = view_state;
         self.mode = AppMode::Normal;
         self.input.clear();
         self.cursor_position = 0;
@@ -272,11 +218,7 @@ impl App {
     }
 
     pub fn scroll_up(&mut self, amount: u16) {
-        if self.scroll_offset >= amount {
-            self.scroll_offset -= amount;
-        } else {
-            self.scroll_offset = 0;
-        }
+        self.scroll_offset = self.scroll_offset.saturating_sub(amount);
     }
 
     pub fn scroll_down(&mut self, amount: u16) {
@@ -290,5 +232,47 @@ impl App {
     pub fn go_home(&mut self) {
         self.view_state = ViewState::Home;
         self.scroll_offset = 0;
+    }
+}
+
+// Helper function to spawn the price update background task
+fn spawn_price_update_task(api_key: String, price_clone: Arc<RwLock<f64>>) {
+    tokio::spawn(async move {
+        let mut ticker = interval(Duration::from_secs(10));
+        
+        // Initial fetch
+        update_price(&api_key, &price_clone).await;
+        
+        // Update every 10 seconds
+        loop {
+            ticker.tick().await;
+            update_price(&api_key, &price_clone).await;
+        }
+    });
+}
+
+// Helper function to update price
+async fn update_price(api_key: &str, price_lock: &Arc<RwLock<f64>>) {
+    if let Ok((price, _)) = crate::api::get_eth_price(api_key).await {
+        if let Ok(mut p) = price_lock.write() {
+            *p = price;
+        }
+    }
+}
+
+// Helper function to handle route result
+fn handle_route_result(result: Result<ViewState>) -> ViewState {
+    match result {
+        Ok(view_state) => view_state,
+        Err(e) => {
+            let error_msg = e.to_string();
+            if error_msg.contains("API key not configured") {
+                ViewState::ApiKeyRequired(
+                    "Etherscan API key required for address/contract queries. Press 's' to set up your API key.".to_string()
+                )
+            } else {
+                ViewState::Error(format!("Error: {}", e))
+            }
+        }
     }
 }

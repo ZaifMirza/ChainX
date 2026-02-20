@@ -18,33 +18,10 @@ use crate::error::Result;
 pub struct CommandRouter;
 
 impl CommandRouter {
-    // pub async fn route(state: &AppState, input_type: InputType) -> Result<()> {
-    //     match input_type {
-    //         InputType::Address(addr) => {
-    //             // Detect if it's a contract or regular address
-    //             let detector = ContractDetector::new(&state.rpc_client, &addr);
-    //             let is_contract = detector.is_contract().await;
-                
-    //             if is_contract {
-    //                 ContractCommand::execute(state, &addr).await
-    //             } else {
-    //                 AddressCommand::execute(state, &addr).await
-    //             }
-    //         }
-    //         InputType::BlockNumber(num) => {
-    //             BlockCommand::execute(state, num).await
-    //         }
-    //         InputType::TransactionHash(hash) => {
-    //             TransactionCommand::execute(state, &hash).await
-    //         }
-    //     }
-    // }
-
     /// Route for TUI - returns ViewState instead of printing
     pub async fn route_tui(state: &AppState, input_type: InputType) -> Result<ViewState> {
         match input_type {
             InputType::Address(addr) => {
-                // Detect if it's a contract or regular address
                 let detector = ContractDetector::new(&state.rpc_client, &addr);
                 let is_contract = detector.is_contract().await;
                 

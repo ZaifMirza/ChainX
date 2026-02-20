@@ -20,20 +20,6 @@ impl AddressInfo {
         let wei = crate::utils::hex::parse_hex(&self.balance);
         wei as f64 / 1e18
     }
-
-    // pub fn is_contract(&self) -> bool {
-    //     self.contract_code
-    //         .as_ref()
-    //         .map(|code| !code.is_empty() && code != "0x")
-    //         .unwrap_or(false)
-    // }
-
-    // pub fn tx_count(&self) -> u64 {
-    //     self.transaction_count
-    //         .as_deref()
-    //         .map(|c| crate::utils::hex::parse_hex(c))
-    //         .unwrap_or(0)
-    // }
 }
 
 // Display-ready address for TUI

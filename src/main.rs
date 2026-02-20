@@ -43,7 +43,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = match App::new().await {
         Ok(app) => app,
         Err(e) => {
-            // Cleanup terminal before showing error
             reset_terminal()?;
             eprintln!("Failed to initialize app: {}", e);
             return Err(e.into());
@@ -87,20 +86,11 @@ async fn run_app<B: Backend>(
         terminal.draw(|f| draw(f, app))?;
 
         // Handle events with timeout
-        let timeout = std::time::Duration::from_millis(250)
-            .checked_sub(last_tick.elapsed())
-            .unwrap_or_else(|| std::time::Duration::from_secs(0));
-
+        let timeout = calculate_timeout(last_tick);
+        
         if crossterm::event::poll(timeout)? {
             if let crossterm::event::Event::Key(key) = crossterm::event::read()? {
-                let action = match app.mode {
-                    AppMode::Normal | AppMode::Loading | AppMode::Error => {
-                        handle_normal_mode(key)
-                    }
-                    AppMode::Input => handle_input_mode(key),
-                    AppMode::ApiKeySetup => handle_api_key_mode(key),
-                };
-
+                let action = handle_key_event(app.mode, key);
                 if let Some(action) = action {
                     handle_action(app, action).await;
                 }
@@ -119,43 +109,68 @@ async fn run_app<B: Backend>(
     }
 }
 
+fn calculate_timeout(last_tick: std::time::Instant) -> std::time::Duration {
+    std::time::Duration::from_millis(250)
+        .checked_sub(last_tick.elapsed())
+        .unwrap_or_else(|| std::time::Duration::from_secs(0))
+}
+
+fn handle_key_event(mode: AppMode, key: crossterm::event::KeyEvent) -> Option<AppAction> {
+    match mode {
+        AppMode::Normal | AppMode::Loading | AppMode::Error => handle_normal_mode(key),
+        AppMode::Input => handle_input_mode(key),
+        AppMode::ApiKeySetup => handle_api_key_mode(key),
+    }
+}
+
 async fn handle_action(app: &mut App, action: AppAction) {
     use AppAction::*;
 
     match action {
+        // Navigation
         Quit => app.quit(),
+        GoHome => app.go_home(),
+        
+        // Input mode
         EnterInput => app.enter_input_mode(),
         CancelInput => app.exit_input_mode(),
-        Submit => {
-            if let Err(e) = app.submit_input().await {
-                app.view_state = tui::app::ViewState::Error(format!("Error: {}", e));
-            }
-        }
+        Submit => handle_submit(app).await,
         InsertChar(c) => app.insert_char(c),
         DeleteChar => app.delete_char(),
         MoveCursorLeft => app.move_cursor_left(),
         MoveCursorRight => app.move_cursor_right(),
         MoveCursorStart => app.move_cursor_start(),
         MoveCursorEnd => app.move_cursor_end(),
-        ScrollUp => app.scroll_up(1),
-        ScrollDown => app.scroll_down(1),
-        ScrollUpFast => app.scroll_up(5),
-        ScrollDownFast => app.scroll_down(5),
-        ScrollToTop => app.reset_scroll(),
-        ScrollToBottom => app.scroll_down(1000),
-        GoHome => app.go_home(),
+        
+        // API key setup mode
         EnterApiKeySetup => app.enter_api_key_setup(),
         CancelApiKeySetup => app.exit_api_key_setup(),
-        SubmitApiKey => {
-            if let Err(e) = app.submit_api_key().await {
-                app.view_state = tui::app::ViewState::Error(format!("Error: {}", e));
-            }
-        }
+        SubmitApiKey => handle_api_key_submit(app).await,
         InsertApiKeyChar(c) => app.insert_api_key_char(c),
         DeleteApiKeyChar => app.delete_api_key_char(),
         MoveApiKeyCursorLeft => app.move_api_key_cursor_left(),
         MoveApiKeyCursorRight => app.move_api_key_cursor_right(),
         MoveApiKeyCursorStart => app.move_api_key_cursor_start(),
         MoveApiKeyCursorEnd => app.move_api_key_cursor_end(),
+        
+        // Scrolling
+        ScrollUp => app.scroll_up(1),
+        ScrollDown => app.scroll_down(1),
+        ScrollUpFast => app.scroll_up(5),
+        ScrollDownFast => app.scroll_down(5),
+        ScrollToTop => app.reset_scroll(),
+        ScrollToBottom => app.scroll_down(1000),
+    }
+}
+
+async fn handle_submit(app: &mut App) {
+    if let Err(e) = app.submit_input().await {
+        app.view_state = tui::app::ViewState::Error(format!("Error: {}", e));
+    }
+}
+
+async fn handle_api_key_submit(app: &mut App) {
+    if let Err(e) = app.submit_api_key().await {
+        app.view_state = tui::app::ViewState::Error(format!("Error: {}", e));
     }
 }

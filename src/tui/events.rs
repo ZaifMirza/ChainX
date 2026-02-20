@@ -44,6 +44,7 @@ impl EventHandler {
     }
 }
 
+// Normal mode key handling
 pub fn handle_normal_mode(key: KeyEvent) -> Option<AppAction> {
     match key.code {
         KeyCode::Char('q') | KeyCode::Char('Q') => Some(AppAction::Quit),
@@ -61,6 +62,7 @@ pub fn handle_normal_mode(key: KeyEvent) -> Option<AppAction> {
     }
 }
 
+// Input mode key handling
 pub fn handle_input_mode(key: KeyEvent) -> Option<AppAction> {
     match key.code {
         KeyCode::Enter => Some(AppAction::Submit),
@@ -75,6 +77,7 @@ pub fn handle_input_mode(key: KeyEvent) -> Option<AppAction> {
     }
 }
 
+// API key setup mode key handling
 pub fn handle_api_key_mode(key: KeyEvent) -> Option<AppAction> {
     match key.code {
         KeyCode::Enter => Some(AppAction::SubmitApiKey),
@@ -91,7 +94,11 @@ pub fn handle_api_key_mode(key: KeyEvent) -> Option<AppAction> {
 
 #[derive(Debug, Clone)]
 pub enum AppAction {
+    // Navigation
     Quit,
+    GoHome,
+    
+    // Input mode
     EnterInput,
     CancelInput,
     Submit,
@@ -101,13 +108,8 @@ pub enum AppAction {
     MoveCursorRight,
     MoveCursorStart,
     MoveCursorEnd,
-    ScrollUp,
-    ScrollDown,
-    ScrollUpFast,
-    ScrollDownFast,
-    ScrollToTop,
-    ScrollToBottom,
-    GoHome,
+    
+    // API key setup mode
     EnterApiKeySetup,
     CancelApiKeySetup,
     SubmitApiKey,
@@ -117,4 +119,12 @@ pub enum AppAction {
     MoveApiKeyCursorRight,
     MoveApiKeyCursorStart,
     MoveApiKeyCursorEnd,
+    
+    // Scrolling
+    ScrollUp,
+    ScrollDown,
+    ScrollUpFast,
+    ScrollDownFast,
+    ScrollToTop,
+    ScrollToBottom,
 }
