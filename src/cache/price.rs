@@ -25,12 +25,11 @@ impl PriceCache {
 
     pub async fn get(&self) -> Option<(f64, f64)> {
         let cache = self.data.read().await;
-        if let Some(ref cached) = *cache {
-            if let Ok(elapsed) = cached.timestamp.elapsed() {
-                if elapsed < self.duration {
-                    return Some((cached.price, cached.ethbtc));
-                }
-            }
+        if let Some(ref cached) = *cache
+            && let Ok(elapsed) = cached.timestamp.elapsed()
+            && elapsed < self.duration
+        {
+            return Some((cached.price, cached.ethbtc));
         }
         None
     }

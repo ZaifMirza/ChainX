@@ -39,28 +39,28 @@ impl BlockInfo {
     pub fn number_u64(&self) -> u64 {
         self.number
             .as_deref()
-            .map(|n| crate::utils::hex::parse_hex(n))
+            .map(crate::utils::hex::parse_hex)
             .unwrap_or(0)
     }
 
     pub fn timestamp_u64(&self) -> u64 {
         self.timestamp
             .as_deref()
-            .map(|t| crate::utils::hex::parse_hex(t))
+            .map(crate::utils::hex::parse_hex)
             .unwrap_or(0)
     }
 
     pub fn gas_used_u64(&self) -> u64 {
         self.gas_used
             .as_deref()
-            .map(|g| crate::utils::hex::parse_hex(g))
+            .map(crate::utils::hex::parse_hex)
             .unwrap_or(0)
     }
 
     pub fn gas_limit_u64(&self) -> u64 {
         self.gas_limit
             .as_deref()
-            .map(|g| crate::utils::hex::parse_hex(g))
+            .map(crate::utils::hex::parse_hex)
             .unwrap_or(0)
     }
 }
@@ -136,8 +136,8 @@ impl BlockDisplay {
             miner: block.miner.clone().unwrap_or_default(),
             state_root: block.state_root.clone(),
             extra_data: block.extra_data.as_ref().map(|e| {
-                if e.starts_with("0x") {
-                    hex::decode(&e[2..])
+                if let Some(stripped) = e.strip_prefix("0x") {
+                    crate::utils::hex::hex_decode(stripped)
                         .ok()
                         .and_then(|bytes| String::from_utf8(bytes).ok())
                         .unwrap_or_else(|| e.clone())

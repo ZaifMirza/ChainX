@@ -1,14 +1,18 @@
-// TUI Application state and logic
+//! TUI Application state and logic
 
-use crate::app::{AppConfig, AppState};
+use crate::app::{AppConfig, AppState, Result};
 use crate::commands::CommandRouter;
-use crate::error::Result;
-use crate::models::{
-    AddressDisplay, BlockDisplay, ContractDisplay, TransactionDisplay,
-};
+use crate::models::{AddressDisplay, BlockDisplay, ContractDisplay, TransactionDisplay};
 use crate::app::input::InputParser;
+use super::terminal::AppTerminal;
+use super::events::{EventHandler, handle_api_key_mode, handle_input_mode, handle_normal_mode, AppAction};
+use super::ui::draw;
 use std::sync::{Arc, RwLock};
-use tokio::time::{interval, Duration};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{Duration, Instant};
+use tokio::time::interval;
+
+const TICK_RATE_MS: u64 = 250;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AppMode {
@@ -31,6 +35,9 @@ pub enum ViewState {
     ApiKeyRequired(String),
 }
 
+/// Represents the price state - None means loading, Some(price) means loaded
+pub type PriceState = Option<f64>;
+
 pub struct App {
     pub mode: AppMode,
     pub view_state: ViewState,
@@ -39,7 +46,8 @@ pub struct App {
     pub state: AppState,
     pub scroll_offset: u16,
     pub should_quit: bool,
-    pub eth_price: Arc<RwLock<f64>>,
+    pub eth_price: Arc<RwLock<PriceState>>,
+    pub price_loading: Arc<AtomicBool>,
     pub api_key_input: String,
     pub api_key_cursor: usize,
 }
@@ -48,11 +56,12 @@ impl App {
     pub async fn new() -> Result<Self> {
         let app_config = AppConfig::load()?;
         let state = AppState::new(app_config);
-        let eth_price = Arc::new(RwLock::new(0.0));
+        let eth_price = Arc::new(RwLock::new(None));
+        let price_loading = Arc::new(AtomicBool::new(false));
 
-        // Spawn background task to update ETH price every 10 seconds (only if API key is set)
         if let Some(api_key) = state.config.etherscan_api_key.clone() {
-            spawn_price_update_task(api_key, Arc::clone(&eth_price));
+            price_loading.store(true, Ordering::SeqCst);
+            spawn_price_update_task(api_key, Arc::clone(&eth_price), Arc::clone(&price_loading));
         }
 
         Ok(Self {
@@ -64,13 +73,107 @@ impl App {
             scroll_offset: 0,
             should_quit: false,
             eth_price,
+            price_loading,
             api_key_input: String::new(),
             api_key_cursor: 0,
         })
     }
 
-    pub fn get_eth_price(&self) -> f64 {
-        self.eth_price.read().map(|p| *p).unwrap_or(0.0)
+    pub async fn run(&mut self, terminal: &mut AppTerminal) -> std::io::Result<()> {
+        let mut event_handler = EventHandler::new(TICK_RATE_MS);
+        let mut last_tick = Instant::now();
+
+        loop {
+            terminal.draw(|f| draw(f, self))?;
+
+            if let Some(action) = self.poll_action(last_tick)? {
+                self.execute_action(action).await;
+            }
+
+            if last_tick.elapsed() >= Duration::from_millis(TICK_RATE_MS) {
+                event_handler.update_tick();
+                last_tick = Instant::now();
+            }
+
+            if self.should_quit {
+                return Ok(());
+            }
+        }
+    }
+
+    fn poll_action(&self, last_tick: Instant) -> std::io::Result<Option<AppAction>> {
+        let timeout = Duration::from_millis(TICK_RATE_MS)
+            .saturating_sub(last_tick.elapsed());
+
+        if crossterm::event::poll(timeout)?
+            && let crossterm::event::Event::Key(key) = crossterm::event::read()?
+        {
+            return Ok(self.dispatch_key(key));
+        }
+
+        Ok(None)
+    }
+
+    fn dispatch_key(&self, key: crossterm::event::KeyEvent) -> Option<AppAction> {
+        match self.mode {
+            AppMode::Normal | AppMode::Loading | AppMode::Error => handle_normal_mode(key),
+            AppMode::Input => handle_input_mode(key),
+            AppMode::ApiKeySetup => handle_api_key_mode(key),
+        }
+    }
+
+    async fn execute_action(&mut self, action: AppAction) {
+        use AppAction::*;
+        
+        match action {
+            Quit => self.quit(),
+            GoHome => self.go_home(),
+            
+            EnterInput => self.enter_input_mode(),
+            CancelInput => self.exit_input_mode(),
+            Submit => {
+                if let Err(e) = self.submit_input().await {
+                    self.view_state = ViewState::Error(format!("Error: {}", e));
+                    self.mode = AppMode::Normal;
+                }
+            }
+            InsertChar(c) => self.insert_char(c),
+            DeleteChar => self.delete_char(),
+            MoveCursorLeft => self.move_cursor_left(),
+            MoveCursorRight => self.move_cursor_right(),
+            MoveCursorStart => self.move_cursor_start(),
+            MoveCursorEnd => self.move_cursor_end(),
+            
+            EnterApiKeySetup => self.enter_api_key_setup(),
+            CancelApiKeySetup => self.exit_api_key_setup(),
+            SubmitApiKey => {
+                if let Err(e) = self.submit_api_key().await {
+                    self.view_state = ViewState::Error(format!("Error: {}", e));
+                    self.mode = AppMode::Normal;
+                }
+            }
+            InsertApiKeyChar(c) => self.insert_api_key_char(c),
+            DeleteApiKeyChar => self.delete_api_key_char(),
+            MoveApiKeyCursorLeft => self.move_api_key_cursor_left(),
+            MoveApiKeyCursorRight => self.move_api_key_cursor_right(),
+            MoveApiKeyCursorStart => self.move_api_key_cursor_start(),
+            MoveApiKeyCursorEnd => self.move_api_key_cursor_end(),
+            
+            ScrollUp => self.scroll_up(1),
+            ScrollDown => self.scroll_down(1),
+            ScrollUpFast => self.scroll_up(5),
+            ScrollDownFast => self.scroll_down(5),
+            ScrollToTop => self.reset_scroll(),
+            ScrollToBottom => self.scroll_down(1000),
+        }
+    }
+
+    pub fn get_eth_price(&self) -> Option<f64> {
+        self.eth_price.read().ok().and_then(|p| *p)
+    }
+    
+    pub fn is_price_loading(&self) -> bool {
+        self.price_loading.load(Ordering::SeqCst)
     }
 
     pub fn should_quit(&self) -> bool {
@@ -170,21 +273,18 @@ impl App {
     pub async fn submit_api_key(&mut self) -> Result<()> {
         let api_key = self.api_key_input.trim().to_string();
         
-        // Early return for empty key
         if api_key.is_empty() {
             self.view_state = ViewState::Error("API key cannot be empty".to_string());
             self.mode = AppMode::Normal;
             return Ok(());
         }
 
-        // Save the API key
         self.state.config.set_api_key(api_key)?;
         
-        // Start the price update task
         let api_key_clone = self.state.config.etherscan_api_key.clone().unwrap();
-        spawn_price_update_task(api_key_clone, Arc::clone(&self.eth_price));
+        self.price_loading.store(true, Ordering::SeqCst);
+        spawn_price_update_task(api_key_clone, Arc::clone(&self.eth_price), Arc::clone(&self.price_loading));
 
-        // Reset state
         self.view_state = ViewState::Home;
         self.mode = AppMode::Normal;
         self.api_key_input.clear();
@@ -196,14 +296,12 @@ impl App {
     pub async fn submit_input(&mut self) -> Result<()> {
         let trimmed = self.input.trim();
         
-        // Early return for empty input
         if trimmed.is_empty() {
             return Ok(());
         }
 
         self.mode = AppMode::Loading;
 
-        // Parse input and route to appropriate handler
         let view_state = match InputParser::parse(trimmed) {
             Ok(input_type) => handle_route_result(CommandRouter::route_tui(&self.state, input_type).await),
             Err(e) => ViewState::Error(format!("Invalid input: {}", e)),
@@ -235,32 +333,27 @@ impl App {
     }
 }
 
-// Helper function to spawn the price update background task
-fn spawn_price_update_task(api_key: String, price_clone: Arc<RwLock<f64>>) {
+fn spawn_price_update_task(api_key: String, price_clone: Arc<RwLock<PriceState>>, loading_clone: Arc<AtomicBool>) {
     tokio::spawn(async move {
         let mut ticker = interval(Duration::from_secs(10));
+        update_price(&api_key, &price_clone, &loading_clone).await;
         
-        // Initial fetch
-        update_price(&api_key, &price_clone).await;
-        
-        // Update every 10 seconds
         loop {
             ticker.tick().await;
-            update_price(&api_key, &price_clone).await;
+            update_price(&api_key, &price_clone, &loading_clone).await;
         }
     });
 }
 
-// Helper function to update price
-async fn update_price(api_key: &str, price_lock: &Arc<RwLock<f64>>) {
+async fn update_price(api_key: &str, price_lock: &Arc<RwLock<PriceState>>, loading_flag: &Arc<AtomicBool>) {
     if let Ok((price, _)) = crate::api::get_eth_price(api_key).await {
         if let Ok(mut p) = price_lock.write() {
-            *p = price;
+            *p = Some(price);
         }
+        loading_flag.store(false, Ordering::SeqCst);
     }
 }
 
-// Helper function to handle route result
 fn handle_route_result(result: Result<ViewState>) -> ViewState {
     match result {
         Ok(view_state) => view_state,

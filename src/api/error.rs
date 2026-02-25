@@ -1,28 +1,20 @@
 // API error types
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ApiError {
+    #[error("RPC Error: {0}")]
     RpcError(String),
+    #[error("HTTP Error: {0}")]
     HttpError(String),
+    #[error("Parse Error: {0}")]
     ParseError(String),
     #[allow(dead_code)]
+    #[error("Not Found: {0}")]
     NotFound(String),
     #[allow(dead_code)]
+    #[error("Rate Limited: {0}")]
     RateLimited(String),
 }
-
-impl std::fmt::Display for ApiError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ApiError::RpcError(msg) => write!(f, "RPC Error: {}", msg),
-            ApiError::HttpError(msg) => write!(f, "HTTP Error: {}", msg),
-            ApiError::ParseError(msg) => write!(f, "Parse Error: {}", msg),
-            ApiError::NotFound(msg) => write!(f, "Not Found: {}", msg),
-            ApiError::RateLimited(msg) => write!(f, "Rate Limited: {}", msg),
-        }
-    }
-}
-
-impl std::error::Error for ApiError {}
 
 pub type ApiResult<T> = Result<T, ApiError>;

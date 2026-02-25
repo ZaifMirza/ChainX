@@ -32,7 +32,7 @@ impl TransactionDetail {
     pub fn block_number_u64(&self) -> u64 {
         self.block_number
             .as_deref()
-            .map(|b| crate::utils::hex::parse_hex(b))
+            .map(crate::utils::hex::parse_hex)
             .unwrap_or(0)
     }
 
@@ -49,7 +49,7 @@ impl TransactionDetail {
     pub fn nonce_u64(&self) -> u64 {
         self.nonce
             .as_deref()
-            .map(|n| crate::utils::hex::parse_hex(n))
+            .map(crate::utils::hex::parse_hex)
             .unwrap_or(0)
     }
 }
@@ -79,7 +79,7 @@ impl TransactionReceipt {
     pub fn gas_used_u64(&self) -> u64 {
         self.gas_used
             .as_deref()
-            .map(|g| crate::utils::hex::parse_hex(g))
+            .map(crate::utils::hex::parse_hex)
             .unwrap_or(0)
     }
 }

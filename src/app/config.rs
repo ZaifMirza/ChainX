@@ -1,8 +1,9 @@
-// Application configuration and state
+//! Application configuration and state
 
+use super::api_key;
+use super::error::{Result, ExplorerError};
 use crate::api::RpcClient;
 use crate::config::ChainConfig;
-use crate::error::Result;
 
 pub struct AppConfig {
     pub chain: ChainConfig,
@@ -44,15 +45,11 @@ impl AppState {
 }
 
 fn load_api_key_safe() -> Result<Option<String>> {
-    crate::api_key::load_api_key()
-        .map_err(|e| crate::error::ExplorerError::ConfigError(
-            format!("Failed to load API key: {}", e)
-        ))
+    api_key::load_api_key()
+        .map_err(|e| ExplorerError::ConfigError(format!("Failed to load API key: {}", e)))
 }
 
 fn save_api_key_safe(api_key: &str) -> Result<()> {
-    crate::api_key::save_api_key(api_key)
-        .map_err(|e| crate::error::ExplorerError::ConfigError(
-            format!("Failed to save API key: {}", e)
-        ))
+    api_key::save_api_key(api_key)
+        .map_err(|e| ExplorerError::ConfigError(format!("Failed to save API key: {}", e)))
 }

@@ -5,7 +5,7 @@ pub mod block;
 pub mod contract;
 pub mod transaction;
 
-use crate::app::{AppState, input::InputType};
+use crate::app::{AppState, input::InputType, Result};
 use crate::validation::ContractDetector;
 use crate::tui::app::ViewState;
 
@@ -13,7 +13,6 @@ use address::AddressCommand;
 use block::BlockCommand;
 use contract::ContractCommand;
 use transaction::TransactionCommand;
-use crate::error::Result;
 
 pub struct CommandRouter;
 

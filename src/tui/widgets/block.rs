@@ -19,7 +19,7 @@ pub fn draw_block_widget(
     let mut lines = vec![];
 
     // Block Number
-    lines.push(key_value_line("Block Number:", &block.number.to_string()));
+    lines.push(key_value_line("Block Number:", block.number.to_string()));
     lines.push(Line::from(""));
 
     // Status
@@ -49,10 +49,10 @@ pub fn draw_block_widget(
     lines.push(section_title("Block Statistics"));
     lines.push(key_value_line(
         "Transactions:",
-        &block.transactions.to_string(),
+        block.transactions.to_string(),
     ));
     if let Some(withdrawals) = block.withdrawals {
-        lines.push(key_value_line("Withdrawals:", &withdrawals.to_string()));
+        lines.push(key_value_line("Withdrawals:", withdrawals.to_string()));
     }
     lines.push(Line::from(""));
 

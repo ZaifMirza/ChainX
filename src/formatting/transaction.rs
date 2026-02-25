@@ -30,7 +30,7 @@ impl<'a> TransactionFormatter<'a> {
 
     fn calculate_fee(&self) -> f64 {
         if let Some(r) = self.receipt {
-            let gas_used = r.gas_used.as_deref().map(|g| parse_hex(g)).unwrap_or(0);
+            let gas_used = r.gas_used.as_deref().map(parse_hex).unwrap_or(0);
             let gas_price = parse_hex(&self.tx.gas_price);
             (gas_used as u128 * gas_price as u128) as f64 / 1e18
         } else {

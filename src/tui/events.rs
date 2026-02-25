@@ -30,10 +30,10 @@ impl EventHandler {
             .checked_sub(self.last_tick.elapsed())
             .unwrap_or_else(|| Duration::from_secs(0));
 
-        if event::poll(timeout)? {
-            if let CrosstermEvent::Key(key) = event::read()? {
-                return Ok(Event::Key(key));
-            }
+        if event::poll(timeout)?
+            && let CrosstermEvent::Key(key) = event::read()?
+        {
+            return Ok(Event::Key(key));
         }
 
         Ok(Event::Tick)

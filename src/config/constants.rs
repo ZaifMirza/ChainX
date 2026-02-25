@@ -21,7 +21,7 @@ pub const ETH_ADDRESS_LENGTH: usize = 42;
 pub const TX_HASH_LENGTH: usize = 66;
 
 // Cache constants
-pub const PRICE_CACHE_DURATION_SECS: u64 = 10;
+pub const PRICE_CACHE_DURATION_SECS: u64 = 5;
 pub const MAX_TOKEN_DISPLAY: usize = 10;
 
 // Block reward constants

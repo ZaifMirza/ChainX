@@ -1,6 +1,6 @@
 // Input reading and parsing
 
-use crate::error::{ExplorerError, Result};
+use super::error::{ExplorerError, Result};
 use crate::validation::input::{AddressValidator, BlockNumberValidator, InputValidator};
 
 #[derive(Debug, Clone)]
@@ -29,8 +29,8 @@ impl InputParser {
 
         // Check for block number
         if BlockNumberValidator(trimmed).is_valid() {
-            let block_number = if trimmed.starts_with("0x") {
-                u64::from_str_radix(&trimmed[2..], 16).unwrap_or(0)
+            let block_number = if let Some(stripped) = trimmed.strip_prefix("0x") {
+                u64::from_str_radix(stripped, 16).unwrap_or(0)
             } else {
                 trimmed.parse().unwrap_or(0)
             };

@@ -1,7 +1,6 @@
 // Transaction command handler
 
-use crate::app::AppState;
-use crate::error::Result;
+use crate::app::{AppState, Result, ExplorerError};
 use crate::models::{TransactionDisplay, TransactionReceipt};
 
 pub struct TransactionCommand;
@@ -10,10 +9,10 @@ impl TransactionCommand {
     /// Execute for TUI - returns TransactionDisplay instead of printing
     pub async fn execute_tui(state: &AppState, tx_hash: &str) -> Result<TransactionDisplay> {
         let (tx_detail, receipt, _timestamp) = state.rpc_client.fetch_transaction_data(tx_hash).await
-            .map_err(|e| crate::error::ExplorerError::RpcError(e.to_string()))?;
+            .map_err(|e| ExplorerError::RpcError(e.to_string()))?;
 
         let current_block = state.rpc_client.get_block_number().await
-            .map_err(|e| crate::error::ExplorerError::RpcError(e.to_string()))?;
+            .map_err(|e| ExplorerError::RpcError(e.to_string()))?;
 
         let receipt = receipt.unwrap_or_else(|| TransactionReceipt {
             status: Some("0x0".to_string()),

@@ -1,10 +1,9 @@
 // Address command handler
 
-use crate::app::AppState;
+use crate::app::{AppState, Result, ExplorerError};
 use crate::api::{EtherscanClient, get_eth_price};
 use crate::models::{TokenInfo, AddressDisplay, TokenBalanceDisplay};
 use crate::utils::wei_to_eth;
-use crate::error::Result;
 use std::collections::HashSet;
 
 pub struct AddressCommand;
@@ -13,7 +12,7 @@ impl AddressCommand {
     /// Execute for TUI - returns AddressDisplay instead of printing
     pub async fn execute_tui(state: &AppState, address: &str) -> Result<AddressDisplay> {
         let api_key = state.config.etherscan_api_key.as_ref()
-            .ok_or_else(|| api_key_not_configured_error())?;
+            .ok_or_else(api_key_not_configured_error)?;
         
         let eth_balance = fetch_eth_balance(&state.rpc_client, address).await?;
         let eth_price = fetch_eth_price(api_key).await;
@@ -38,15 +37,15 @@ impl AddressCommand {
     }
 }
 
-fn api_key_not_configured_error() -> crate::error::ExplorerError {
-    crate::error::ExplorerError::ConfigError(
+fn api_key_not_configured_error() -> ExplorerError {
+    ExplorerError::ConfigError(
         "Etherscan API key not configured. Press 's' to set up your API key.".to_string()
     )
 }
 
 async fn fetch_eth_balance(client: &crate::api::RpcClient, address: &str) -> Result<String> {
     client.get_balance(address).await
-        .map_err(|e| crate::error::ExplorerError::ApiError(format!("Failed to fetch balance: {}", e)))
+        .map_err(|e| ExplorerError::ApiError(format!("Failed to fetch balance: {}", e)))
 }
 
 async fn fetch_eth_price(api_key: &str) -> f64 {

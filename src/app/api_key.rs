@@ -1,5 +1,6 @@
-// API Key configuration storage
+//! API Key configuration storage
 
+use std::env;
 use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
@@ -8,8 +9,7 @@ const CONFIG_DIR: &str = "chainx";
 const CONFIG_FILE: &str = "config.toml";
 
 fn get_config_path() -> io::Result<PathBuf> {
-    let config_dir = dirs::config_dir()
-        .ok_or_else(|| io_error("Could not find config directory"))?;
+    let config_dir = get_config_dir()?;
     
     let chainx_dir = config_dir.join(CONFIG_DIR);
     
@@ -18,6 +18,35 @@ fn get_config_path() -> io::Result<PathBuf> {
     }
     
     Ok(chainx_dir.join(CONFIG_FILE))
+}
+
+fn get_config_dir() -> io::Result<PathBuf> {
+    // Try XDG_CONFIG_HOME first (Linux/Unix standard)
+    if let Ok(xdg_config) = env::var("XDG_CONFIG_HOME") {
+        return Ok(PathBuf::from(xdg_config));
+    }
+    
+    // Fall back to platform-specific config directory
+    #[cfg(target_os = "macos")]
+    {
+        env::var("HOME")
+            .map(|h| PathBuf::from(h).join("Library/Application Support"))
+            .map_err(|_| io_error("Could not find config directory"))
+    }
+    
+    #[cfg(all(unix, not(target_os = "macos")))]
+    {
+        env::var("HOME")
+            .map(|h| PathBuf::from(h).join(".config"))
+            .map_err(|_| io_error("Could not find config directory"))
+    }
+    
+    #[cfg(windows)]
+    {
+        env::var("APPDATA")
+            .map(PathBuf::from)
+            .map_err(|_| io_error("Could not find config directory"))
+    }
 }
 
 pub fn load_api_key() -> io::Result<Option<String>> {
@@ -63,7 +92,7 @@ fn parse_api_key_from_contents(contents: &str) -> Option<String> {
         .lines()
         .map(|line| line.trim())
         .find(|line| line.starts_with("etherscan_api_key"))
-        .and_then(|line| extract_api_key_value(line))
+        .and_then(extract_api_key_value)
 }
 
 fn extract_api_key_value(line: &str) -> Option<String> {

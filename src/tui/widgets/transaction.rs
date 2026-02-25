@@ -27,16 +27,16 @@ pub fn draw_transaction_widget(
     let status_text = if tx.status { "Success" } else { "Failed" };
     lines.push(key_value_line_colored(
         "Status:",
-        &format!("{} {}", status_symbol, status_text),
+        format!("{} {}", status_symbol, status_text),
         status_color(tx.status),
     ));
     lines.push(Line::from(""));
 
     // Block Info
-    lines.push(key_value_line("Block:", &tx.block_number.to_string()));
+    lines.push(key_value_line("Block:", tx.block_number.to_string()));
     lines.push(key_value_line(
         "Confirmations:",
-        &tx.confirmations.to_string(),
+        tx.confirmations.to_string(),
     ));
     lines.push(key_value_line("Timestamp:", &tx.timestamp));
     lines.push(Line::from(""));
@@ -49,7 +49,7 @@ pub fn draw_transaction_widget(
     // Value
     lines.push(key_value_line_colored(
         "Value:",
-        &format!("{} ETH", tx.value_eth),
+        format!("{} ETH", tx.value_eth),
         Color::Green,
     ));
     lines.push(Line::from(""));
@@ -59,24 +59,25 @@ pub fn draw_transaction_widget(
     lines.push(key_value_line("Gas Used:", &tx.gas_used));
     lines.push(key_value_line(
         "Gas Price:",
-        &format!("{} Gwei", tx.gas_price_gwei),
+        format!("{} Gwei", tx.gas_price_gwei),
     ));
     lines.push(key_value_line_colored(
         "Transaction Fee:",
-        &format!("{} ETH", tx.transaction_fee_eth),
+        format!("{} ETH", tx.transaction_fee_eth),
         Color::Yellow,
     ));
     lines.push(Line::from(""));
 
     // Nonce
-    lines.push(key_value_line("Nonce:", &tx.nonce.to_string()));
+    lines.push(key_value_line("Nonce:", tx.nonce.to_string()));
 
-    if let Some(ref input) = tx.input_data {
-        if !input.is_empty() && input != "0x" {
-            lines.push(Line::from(""));
-            lines.push(section_title("Input Data"));
-            lines.push(Line::from(input.as_str()));
-        }
+    if let Some(ref input) = tx.input_data
+        && !input.is_empty()
+        && input != "0x"
+    {
+        lines.push(Line::from(""));
+        lines.push(section_title("Input Data"));
+        lines.push(Line::from(input.as_str()));
     }
 
     let text = Text::from(lines);

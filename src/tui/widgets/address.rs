@@ -40,7 +40,7 @@ pub fn draw_address_widget(
     lines.push(section_title("Balance"));
     lines.push(key_value_line_colored(
         "ETH Balance:",
-        &format!("{} ETH", addr.balance_eth),
+        format!("{} ETH", addr.balance_eth),
         Color::Green,
     ));
 
@@ -52,26 +52,26 @@ pub fn draw_address_widget(
     // Transaction Count
     lines.push(key_value_line(
         "Transaction Count:",
-        &addr.transaction_count.to_string(),
+        addr.transaction_count.to_string(),
     ));
     lines.push(Line::from(""));
 
     // Contract Info
-    if addr.is_contract {
-        if let Some(ref contract_name) = addr.contract_name {
-            lines.push(section_title("Contract Information"));
-            lines.push(key_value_line("Name:", contract_name));
+    if addr.is_contract
+        && let Some(ref contract_name) = addr.contract_name
+    {
+        lines.push(section_title("Contract Information"));
+        lines.push(key_value_line("Name:", contract_name));
 
-            if let Some(ref creator) = addr.contract_creator {
-                lines.push(key_value_line("Creator:", creator));
-            }
-
-            if let Some(ref creation_tx) = addr.creation_transaction {
-                lines.push(key_value_line("Creation Tx:", creation_tx));
-            }
-
-            lines.push(Line::from(""));
+        if let Some(ref creator) = addr.contract_creator {
+            lines.push(key_value_line("Creator:", creator));
         }
+
+        if let Some(ref creation_tx) = addr.creation_transaction {
+            lines.push(key_value_line("Creation Tx:", creation_tx));
+        }
+
+        lines.push(Line::from(""));
     }
 
     // Token Balances

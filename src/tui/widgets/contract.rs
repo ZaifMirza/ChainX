@@ -26,7 +26,7 @@ pub fn draw_contract_widget(
     lines.push(section_title("Balance"));
     lines.push(key_value_line_colored(
         "ETH Balance:",
-        &format!("{} ETH", contract.balance_eth),
+        format!("{} ETH", contract.balance_eth),
         Color::Green,
     ));
 
@@ -73,7 +73,7 @@ pub fn draw_contract_widget(
     // Transaction Count
     lines.push(key_value_line(
         "Total Transactions:",
-        &contract.transaction_count.to_string(),
+        contract.transaction_count.to_string(),
     ));
     lines.push(Line::from(""));
 

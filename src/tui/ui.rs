@@ -4,7 +4,9 @@ use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Margin, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState, Wrap, Clear},
+    widgets::{
+        Block, Borders, Clear, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState, Wrap,
+    },
     Frame,
 };
 
@@ -17,13 +19,13 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
         Block::default().style(Style::default().bg(Color::Black)),
         frame.area(),
     );
-    
+
     // If in API key setup mode, draw the setup screen
     if app.mode == AppMode::ApiKeySetup {
         draw_api_key_setup(frame, frame.area(), app);
         return;
     }
-    
+
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
@@ -34,7 +36,7 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
             Constraint::Length(1), // Footer
         ])
         .split(frame.area());
-    
+
     draw_header(frame, chunks[0], app);
     draw_main_content(frame, chunks[1], app);
     draw_input_or_status(frame, chunks[2], app);
@@ -65,9 +67,10 @@ fn draw_header(frame: &mut Frame, area: Rect, app: &App) {
 }
 
 fn render_price_widget(frame: &mut Frame, area: Rect, app: &App) {
-    let eth_price = app.get_eth_price();
-    let price_text = if eth_price > 0.0 {
-        format!("ETH: ${:.2}", eth_price)
+    let price_text = if app.is_price_loading() {
+        "ETH: Loading...".to_string()
+    } else if let Some(price) = app.get_eth_price() {
+        format!("ETH: ${:.2}", price)
     } else {
         "ETH: ---".to_string()
     };
@@ -98,7 +101,7 @@ fn render_chain_indicator(frame: &mut Frame, area: Rect) {
 
 fn draw_main_content(frame: &mut Frame, area: Rect, app: &mut App) {
     let title = get_view_title(&app.view_state);
-    
+
     let content_block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Blue))
@@ -128,18 +131,18 @@ fn get_view_title(view_state: &ViewState) -> &'static str {
 fn render_view_content(frame: &mut Frame, area: Rect, app: &mut App) {
     match &app.view_state {
         ViewState::Home => draw_home_view(frame, area, app),
-        ViewState::Transaction(tx) => super::widgets::transaction::draw_transaction_widget(
-            frame, area, tx, app.scroll_offset,
-        ),
-        ViewState::Block(block) => super::widgets::block::draw_block_widget(
-            frame, area, block, app.scroll_offset,
-        ),
-        ViewState::Address(addr) => super::widgets::address::draw_address_widget(
-            frame, area, addr, app.scroll_offset,
-        ),
-        ViewState::Contract(contract) => super::widgets::contract::draw_contract_widget(
-            frame, area, contract, app.scroll_offset,
-        ),
+        ViewState::Transaction(tx) => {
+            super::widgets::transaction::draw_transaction_widget(frame, area, tx, app.scroll_offset)
+        }
+        ViewState::Block(block) => {
+            super::widgets::block::draw_block_widget(frame, area, block, app.scroll_offset)
+        }
+        ViewState::Address(addr) => {
+            super::widgets::address::draw_address_widget(frame, area, addr, app.scroll_offset)
+        }
+        ViewState::Contract(contract) => {
+            super::widgets::contract::draw_contract_widget(frame, area, contract, app.scroll_offset)
+        }
         ViewState::Error(msg) => draw_error_view(frame, area, msg),
         ViewState::ApiKeyRequired(msg) => draw_api_key_required_view(frame, area, msg),
     }
@@ -157,7 +160,10 @@ fn render_scrollbar(frame: &mut Frame, area: Rect, scroll_offset: u16) {
 
     frame.render_stateful_widget(
         scrollbar,
-        area.inner(Margin { horizontal: 0, vertical: 1 }),
+        area.inner(Margin {
+            horizontal: 0,
+            vertical: 1,
+        }),
         &mut scrollbar_state,
     );
 }
@@ -179,13 +185,17 @@ fn build_home_text(has_api_key: bool) -> Vec<Line<'static>> {
         Line::from(""),
         Line::from(Span::styled(
             "Welcome to ChainX - Terminal Blockchain Explorer",
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from(""),
         Line::from(""),
         Line::from(Span::styled(
             "Supported Input Types:",
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from("  • Transaction Hash: 0x... (66 characters)"),
         Line::from("  • Block Number: 12345678 or 0xABC123"),
@@ -195,7 +205,9 @@ fn build_home_text(has_api_key: bool) -> Vec<Line<'static>> {
         Line::from(""),
         Line::from(Span::styled(
             "Keyboard Shortcuts:",
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from("  • i or /    - Enter input mode"),
         Line::from("  • s         - Set up Etherscan API key"),
@@ -206,7 +218,7 @@ fn build_home_text(has_api_key: bool) -> Vec<Line<'static>> {
         Line::from("  • Home/End  - Jump to top/bottom"),
         Line::from(""),
     ];
-    
+
     // Add API key status
     let status_line = if has_api_key {
         Line::from(Span::styled(
@@ -220,20 +232,22 @@ fn build_home_text(has_api_key: bool) -> Vec<Line<'static>> {
         ))
     };
     lines.push(status_line);
-    
+
     if !has_api_key {
         lines.push(Line::from(Span::styled(
             "    (Address and Contract queries require API key)",
             Style::default().fg(Color::DarkGray),
         )));
     }
-    
+
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled(
         "Press 'i' to start exploring the blockchain!",
-        Style::default().fg(Color::Green).add_modifier(Modifier::BOLD),
+        Style::default()
+            .fg(Color::Green)
+            .add_modifier(Modifier::BOLD),
     )));
-    
+
     lines
 }
 
@@ -266,7 +280,9 @@ fn draw_api_key_required_view(frame: &mut Frame, area: Rect, msg: &str) {
         Line::from(""),
         Line::from(Span::styled(
             "🔑 API Key Required",
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from(""),
         Line::from(msg),
@@ -284,7 +300,9 @@ fn draw_api_key_required_view(frame: &mut Frame, area: Rect, msg: &str) {
         Line::from(""),
         Line::from(Span::styled(
             "Press 's' to set up your API key",
-            Style::default().fg(Color::Green).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Green)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from(Span::styled(
             "Press 'h' to return home",
@@ -305,16 +323,16 @@ fn draw_api_key_setup(frame: &mut Frame, area: Rect, app: &App) {
         .direction(Direction::Vertical)
         .margin(2)
         .constraints([
-            Constraint::Length(3),  // Title
-            Constraint::Length(3),  // Input box
-            Constraint::Min(0),     // Instructions
+            Constraint::Length(3), // Title
+            Constraint::Length(3), // Input box
+            Constraint::Min(0),    // Instructions
         ])
         .split(area);
 
     render_api_key_title(frame, chunks[0]);
     render_api_key_input(frame, chunks[1], app);
     render_api_key_instructions(frame, chunks[2]);
-    
+
     // Show cursor
     frame.set_cursor_position(ratatui::layout::Position::new(
         chunks[1].x + app.api_key_cursor as u16 + 1,
@@ -325,7 +343,9 @@ fn draw_api_key_setup(frame: &mut Frame, area: Rect, app: &App) {
 fn render_api_key_title(frame: &mut Frame, area: Rect) {
     let title = Paragraph::new(Span::styled(
         "🔑 Etherscan API Key Setup",
-        Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+        Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD),
     ))
     .alignment(Alignment::Center);
     frame.render_widget(title, area);
@@ -353,7 +373,9 @@ fn render_api_key_instructions(frame: &mut Frame, area: Rect) {
         Line::from(""),
         Line::from(Span::styled(
             "Instructions:",
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from("  1. Visit https://etherscan.io/apis"),
         Line::from("  2. Create a free account if you don't have one"),
