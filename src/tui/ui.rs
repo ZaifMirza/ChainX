@@ -209,13 +209,13 @@ fn build_home_text(has_api_key: bool) -> Vec<Line<'static>> {
                 .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD),
         )),
-        Line::from("  • i or /    - Enter input mode"),
-        Line::from("  • s         - Set up Etherscan API key"),
-        Line::from("  • h         - Go to home screen"),
-        Line::from("  • q         - Quit application"),
+        Line::from("  • i or /     - Enter input mode"),
+        Line::from("  • s          - Set up Etherscan API key"),
+        Line::from("  • h          - Go to home screen"),
+        Line::from("  • q          - Quit application"),
         Line::from("  • ↑/↓ or j/k - Scroll content"),
-        Line::from("  • PgUp/PgDn - Fast scroll"),
-        Line::from("  • Home/End  - Jump to top/bottom"),
+        Line::from("  • PgUp/PgDn  - Fast scroll"),
+        Line::from("  • Home/End   - Jump to top/bottom"),
         Line::from(""),
     ];
 

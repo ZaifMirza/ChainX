@@ -35,55 +35,50 @@
 
 ## 🎬 Visual Showcase
 
+### 🏠 Home Screen — Your command center for blockchain exploration
+
 <p align="center">
-  <img src="Screenshots/home.png" alt="Home Screen" width="800"/>
-  <br/><sub><b>🏠 Home Screen</b> — Your command center for blockchain exploration</sub>
+  <img src="Screenshots/home.png" alt="Home Screen" width="850"/>
 </p>
 
-<br/>
+---
 
-<table>
-<tr>
-<td width="50%">
+### 📦 Block Explorer — Deep dive into blocks & gas metrics
 
 <p align="center">
-  <img src="Screenshots/block.png" alt="Block Explorer" width="100%"/>
-  <br/><sub><b>📦 Block Explorer</b> — Deep dive into blocks & gas metrics</sub>
+  <img src="Screenshots/block.png" alt="Block Explorer" width="850"/>
 </p>
 
-</td>
-<td width="50%">
+---
+
+### 💳 Transaction Details — Complete tx analysis in seconds
 
 <p align="center">
-  <img src="Screenshots/Tx.png" alt="Transaction Details" width="100%"/>
-  <br/><sub><b>💳 Transactions</b> — Complete tx analysis in seconds</sub>
+  <img src="Screenshots/Tx.png" alt="Transaction Details" width="850"/>
 </p>
 
-</td>
-</tr>
-<tr>
-<td width="50%">
+---
+
+### 👛 Wallet & Address View — Balances, tokens & history
 
 <p align="center">
-  <img src="Screenshots/user_addr.png" alt="Address View" width="100%"/>
-  <br/><sub><b>👛 Wallets</b> — Balances, tokens & history</sub>
+  <img src="Screenshots/user_addr.png" alt="Address View" width="850"/>
 </p>
 
-</td>
-<td width="50%">
+---
+
+### 📜 Smart Contracts — Contract metadata & intelligence
 
 <p align="center">
-  <img src="Screenshots/contract.png" alt="Smart Contracts" width="100%"/>
-  <br/><sub><b>📜 Contracts</b> — Smart contract intelligence</sub>
+  <img src="Screenshots/contract.png" alt="Smart Contracts" width="850"/>
 </p>
 
-</td>
-</tr>
-</table>
+---
+
+### 🔐 Secure API Setup — One-time configuration, lifetime access
 
 <p align="center">
-  <img src="Screenshots/api.png" alt="API Configuration" width="600"/>
-  <br/><sub><b>🔐 Secure API Setup</b> — One-time configuration, lifetime access</sub>
+  <img src="Screenshots/api.png" alt="API Configuration" width="700"/>
 </p>
 
 ---
@@ -91,9 +86,9 @@
 ## ⚡ Why ChainX?
 
 <pre align="center">
-┌─────────────────────────────────────────────────────────┐
-│  "Why open a browser when your terminal is already open?" │
-└─────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  "Why open a browser when your terminal is already open?"  │
+└────────────────────────────────────────────────────────────┘
 </pre>
 
 **ChainX** eliminates context switching. No browser tabs. No slow web interfaces. Just pure, terminal-native blockchain exploration with **sub-second response times** and **zero bloat**.
@@ -187,7 +182,7 @@ cargo run --release
 
 <pre>
 ┌────────────────────────────────────────────────────────┐
-│                    CHAINX CONTROLS                      │
+│                    CHAINX CONTROLS                     │
 ├────────────────────────────────────────────────────────┤
 │  i or /      →  Enter query mode                       │
 │  Enter       →  Submit query                           │
@@ -293,7 +288,7 @@ MIT License — Do whatever you want. Just don't blame us.
 <pre>
 ┌─────────────────────────────────────────────────────────┐
 │          Built with ⚡ by developers, for developers     │
-│                    Ethereum Community ❤️                  │
+│                    Ethereum Community ❤️                │ 
 └─────────────────────────────────────────────────────────┘
 </pre>
 
