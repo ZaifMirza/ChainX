@@ -297,6 +297,7 @@ MIT License — Do whatever you want. Just don't blame us.
 <p align="center">
   <img src="https://img.shields.io/github/stars/ZaifMirza/ChainX?style=social" alt="Stars">
   <img src="https://img.shields.io/github/forks/ZaifMirza/ChainX?style=social" alt="Forks">
+  
 </p>
 
 </div>
