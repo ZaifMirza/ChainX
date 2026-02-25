@@ -1,331 +1,302 @@
-# 🔗 ChainX - Ethereum Blockchain Explorer
+<div align="center">
+
+<pre>
+       ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗██╗  ██╗
+      ██╔════╝██║  ██║██╔══██╗██║████╗  ██║╚██╗██╔╝
+      ██║     ███████║███████║██║██╔██╗ ██║ ╚███╔╝ 
+      ██║     ██╔══██║██╔══██║██║██║╚██╗██║ ██╔██╗ 
+      ╚██████╗██║  ██║██║  ██║██║██║ ╚████║██╔╝ ██╗
+      ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
+</pre>
+
+<h3>⚡ Terminal-Powered Blockchain Intelligence ⚡</h3>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Version">
-  <img src="https://img.shields.io/badge/Rust-2024-edition-yellow" alt="Rust Edition">
-  <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-green" alt="Platform">
+  <img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge&logo=github" alt="Version">
+  <img src="https://img.shields.io/badge/Rust-2024-orange?style=for-the-badge&logo=rust" alt="Rust">
+  <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-green?style=for-the-badge" alt="Platform">
+  <img src="https://img.shields.io/badge/ETH-Etherscan-3C3C3D?style=for-the-badge&logo=ethereum" alt="Etherscan">
+  <img src="https://img.shields.io/badge/async-Tokio-blueviolet?style=for-the-badge" alt="Tokio">
 </p>
 
-ChainX is a powerful command-line blockchain explorer for Ethereum and EVM-compatible networks. It allows you to查询 transactions, blocks, addresses, and smart contracts directly from your terminal.
+---
+
+<p align="center">
+  <strong>🔮 See The Chain. Control The Data. Own The Terminal. 🔮</strong>
+</p>
+
+<p align="center">
+  <em>The blockchain explorer that doesn't slow you down.</em>
+</p>
+
+</div>
 
 ---
 
-## ✨ Features
+## 🎬 Visual Showcase
 
-- **🔍 Multi-Chain Support** - Query 11+ blockchain networks
-- **📦 Block Details** - View block information, transactions, and rewards
-- **💳 Address Queries** - Check wallet balances and token holdings
-- **📄 Transaction Details** - Full transaction information with fees
-- **📜 Smart Contract Info** - Contract metadata, creation details, and transactions
-- **💰 ETH Price** - Real-time ETH price display
-- **🛡️ Security** - Scam/spoofed token filtering
-- **♾️ Interactive Loop** - Continuous querying without restarting
+### 🏠 Home Screen — Your command center for blockchain exploration
+
+<p align="center">
+  <img src="Screenshots/home.png" alt="Home Screen" width="850"/>
+</p>
 
 ---
 
-## 🚀 Getting Started
+### 📦 Block Explorer — Deep dive into blocks & gas metrics
 
-### Prerequisites
+<p align="center">
+  <img src="Screenshots/block.png" alt="Block Explorer" width="850"/>
+</p>
 
-- [Rust](https://rustup.rs/) (1.70+)
-- Internet connection
-- [Etherscan API Key](https://etherscan.io/apis) (free)
+---
 
-### Installation
+### 💳 Transaction Details — Complete tx analysis in seconds
+
+<p align="center">
+  <img src="Screenshots/Tx.png" alt="Transaction Details" width="850"/>
+</p>
+
+---
+
+### 👛 Wallet & Address View — Balances, tokens & history
+
+<p align="center">
+  <img src="Screenshots/user_addr.png" alt="Address View" width="850"/>
+</p>
+
+---
+
+### 📜 Smart Contracts — Contract metadata & intelligence
+
+<p align="center">
+  <img src="Screenshots/contract.png" alt="Smart Contracts" width="850"/>
+</p>
+
+---
+
+### 🔐 Secure API Setup — One-time configuration, lifetime access
+
+<p align="center">
+  <img src="Screenshots/api.png" alt="API Configuration" width="700"/>
+</p>
+
+---
+
+## ⚡ Why ChainX?
+
+<pre align="center">
+┌────────────────────────────────────────────────────────────┐
+│  "Why open a browser when your terminal is already open?"  │
+└────────────────────────────────────────────────────────────┘
+</pre>
+
+**ChainX** eliminates context switching. No browser tabs. No slow web interfaces. Just pure, terminal-native blockchain exploration with **sub-second response times** and **zero bloat**.
+
+---
+
+## 🚀 Features That Hit Different
+
+<table>
+<tr>
+<td width="50%">
+
+### 🎨 **Terminal-Native UI**
+- Powered by **ratatui** for buttery-smooth rendering
+- Zero-latency keyboard navigation
+- Auto-adapts to any terminal size
+- Dark mode by default (it's the only mode)
+
+</td>
+<td width="50%">
+
+### ⚡ **Blazing Fast**
+- **Rust** + **Tokio** = unmatched performance
+- Async I/O throughout
+- Intelligent price caching
+- Minimal API calls, maximum data
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 💰 **Live Market Data**
+- Real-time ETH/USD price (10s updates)
+- Auto-calculated USD values
+- Cached for instant display
+- No refresh needed
+
+</td>
+<td width="50%">
+
+### 🛡️ **Security Hardened**
+- Scam token filtering
+- Secure API key storage
+- Address validation
+- Zero sensitive logging
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### ⌨️ **Vim Motions**
+- `j/k` to scroll
+- `gg` / `G` navigation
+- `i` to input, `Esc` to exit
+- Zero mouse required
+
+</td>
+<td width="50%">
+
+### 🔍 **Auto-Detect Magic**
+- Paste any: hash, address, or block
+- No mode switching
+- Instant recognition
+- One key to query them all
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🎯 Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/chainx.git
-cd chainx
+# ⚡ Install in 30 seconds
+git clone https://github.com/ZaifMirza/ChainX.git
+cd chainx && cargo build --release
 
-# Create .env file
-echo "ETHERSCAN_API_KEY=your_api_key_here" > .env
-
-# Build the project
-cargo build --release
-
-# Run the explorer
+# 🚀 Launch
 cargo run --release
-```
 
-Or simply run with:
-```bash
-cargo run
-```
-
----
-
-## 📖 Usage
-
-### Running ChainX
-
-```bash
-cargo run
-```
-
-### Input Types
-
-ChainX automatically detects what you're querying based on the input format:
-
-| Input Format | Example | Query Type |
-|-------------|---------|------------|
-| `0x...` (42 chars) | `0x742d35Cc6634C0532925a3b844Bc9e7595f...` | Address or Contract |
-| `0x...` (66 chars) | `0x1234567890abcdef1234567890abcdef12345678...` | Transaction Hash |
-| Number | `18547293` or `0x11a3b2e` | Block Number |
-
-### Exit Commands
-
-To exit the program, type:
-- `quit`
-- `exit`
-- `q`
-- `x`
-
----
-
-## 📊 Output Examples
-
-### Transaction Query
-
-When you enter a **transaction hash** (0x...):
-
-```
-╔═══════════════════════════════════════════════════════════╗
-║                 TRANSACTION DETAILS                       ║
-╠═══════════════════════════════════════════════════════════╣
-║  Transaction Hash:   0xabc123...def456                     ║
-║  Status:            ✅ Success                             ║
-║  Block:            18547293                               ║
-║  Timestamp:        2024-01-15 14:32:15                   ║
-║  From:             0x742d35Cc6634C0532925a...             ║
-║  To:               0xdAC17F958D2ee523a2206206994597C13D... ║
-║  Value:            1.50000000 ETH                         ║
-║  Transaction Fee:  0.00250000 ETH                         ║
-║  Gas Price:        25.000000 Gwei                         ║
-╚═══════════════════════════════════════════════════════════╝
-```
-
-**Fields Displayed:**
-- Transaction Hash
-- Status (Success/Failure)
-- Block Number
-- Timestamp
-- From Address
-- To Address
-- Value Transferred
-- Transaction Fee
-- Gas Price
-
----
-
-### Block Query
-
-When you enter a **block number**:
-
-```
-╔═══════════════════════════════════════════════════════════╗
-║                    BLOCK DETAILS                          ║
-╠═══════════════════════════════════════════════════════════╣
-║  Block Height:      18547293                              ║
-║  Status:            Confirmed                              ║
-║  Timestamp:         2024-01-15 14:32:15                   ║
-║  Transactions:      142                                    ║
-║  Withdrawals:      32                                     ║
-║  Block Reward:     0.0000 ETH                            ║
-║  Gas Used:         14,521,876 (87.5%)                     ║
-╠═══════════════════════════════════════════════════════════╣
-║  Block Hash:       0xdef789...abc123                      ║
-║  Parent Hash:      0x456abc...789def                      ║
-║  Miner:           0x952B9003CE6CA4B5C...                  ║
-║  Gas Limit:       30,000,000                              ║
-║  Difficulty:      52,456,789,123,456                       ║
-╚═══════════════════════════════════════════════════════════╝
-```
-
-**Fields Displayed:**
-- Block Height/Number
-- Status
-- Timestamp
-- Transaction Count
-- Withdrawal Count
-- Block Reward
-- Gas Used (amount and percentage)
-- Block Hash
-- Parent Hash
-- Miner Address
-- Gas Limit
-- Difficulty
-
----
-
-### Address Query (EOA/Wallet)
-
-When you enter an **Ethereum address** (0x...):
-
-```
-╔═══════════════════════════════════════════════════════════╗
-║                  ADDRESS DETAILS                          ║
-╠═══════════════════════════════════════════════════════════╣
-║  Address:           0x742d35Cc6634C0532925a3b...          ║
-║  Type:             EOA (Wallet)                           ║
-║  Balance:          2.54320000 ETH                         ║
-║  USD Value:        $4,832.00 USD                          ║
-║  Nonce (TX Count): 45                                     ║
-╠═══════════════════════════════════════════════════════════╣
-║  Contract Code:    None (EOA)                            ║
-╚═══════════════════════════════════════════════════════════╝
-```
-
-**Fields Displayed:**
-- Address
-- Type (EOA or Smart Contract)
-- ETH Balance
-- USD Value (calculated from ETH price)
-- Nonce (Transaction Count)
-- Contract Code Status
-
----
-
-### Contract Query
-
-When you enter a **smart contract address** (0x...):
-
-```
-╔════════════════════════════════════════════════════════════════════════════════════╗
-║                              CONTRACT DETAILS                                      ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  Contract:          0xdAC17F958D2ee523a2206206994597C13D831ec7                     ║
-║  ETH Balance:      5.23400000 ETH                                                 ║
-║  USD Value:        $9,944.60 USD                                                  ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  CONTRACT INFORMATION                                                              ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  Name:             Tether USD (USDT)                                               ║
-║  Creator:         0x5E4c3a55eE1a4C22B4d53C0903B3A5C2...                           ║
-║  Compiler:         v0.8.19+commit.7dd6d404                                        ║
-║  Creation Tx:     0x789abc...def123                                              ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  LAST 5 TRANSACTIONS                                                               ║
-╠════════════════════════════════════════════════════════════════════════════════════╣
-║  Transaction #1                                                                  ║
-║  Hash:    0x456def789...abc123                                                    ║
-║  Value:   0.050000 ETH                                                           ║
-║  Status:  ✅                                                                      ║
-║  Function: transfer                                                               ║
-...
-╚════════════════════════════════════════════════════════════════════════════════════╝
-```
-
-**Fields Displayed:**
-- Contract Address
-- ETH Balance
-- USD Value
-- Contract Name
-- Contract Creator
-- Compiler Version
-- Creation Transaction Hash
-- Contract Type (Proxy if applicable)
-- Implementation Address (for proxies)
-- Recent Transactions (last 5)
-
----
-
-## 🌐 Supported Networks
-
-| Network | Chain ID | Symbol | RPC URL |
-|---------|----------|--------|---------|
-| Ethereum | 1 | ETH | publicnode.com |
-| Polygon | 137 | MATIC | polygon-rpc.com |
-| BSC | 56 | BNB | bsc-dataseed1.binance.org |
-| Avalanche | 43114 | AVAX | api.avax.network |
-| Arbitrum | 42161 | ETH | arb1.arbitrum.io |
-| Optimism | 10 | ETH | mainnet.optimism.io |
-| Base | 8453 | ETH | mainnet.base.org |
-| Celo | 42220 | CELO | forno.celo.org |
-| Fantom | 250 | FTM | rpc.fantom.network |
-| Goerli (Testnet) | 5 | ETH | publicnode.com |
-| Sepolia (Testnet) | 11155111 | ETH | publicnode.com |
-
----
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-ETHERSCAN_API_KEY=your_api_key_here
-```
-
-### Getting an Etherscan API Key
-
-1. Go to [Etherscan.io](https://etherscan.io)
-2. Create an account
-3. Navigate to API Keys
-4. Generate a new API key
-
-**Note:** The free tier includes 5 calls/second, which is sufficient for personal use.
-
----
-
-## 🏗️ Architecture
-
-```
-src/
-├── main.rs              # Entry point
-├── app/                 # Application logic
-│   ├── config.rs        # Configuration
-│   └── input.rs         # Input parsing
-├── api/                 # External APIs
-│   ├── rpc/             # Ethereum RPC client
-│   └── etherscan/       # Etherscan API client
-├── commands/            # Command handlers
-│   ├── address.rs       # Address queries
-│   ├── block.rs         # Block queries
-│   ├── contract.rs      # Contract queries
-│   └── transaction.rs   # Transaction queries
-├── config/              # Chain configuration
-├── formatting/         # Output formatting
-├── models/              # Data models
-├── utils/               # Utility functions
-├── validation/         # Input validation
-└── cache/              # Price caching
+# 🎮 Start exploring
+# Press 'i' → Paste any blockchain data → Hit Enter
 ```
 
 ---
 
-## 📦 Dependencies
+## ⌨️ Command Reference
 
-- **reqwest** - HTTP client
-- **serde** - Serialization
-- **tokio** - Async runtime
-- **clap** - CLI parsing
-- **chrono** - Date/time
-- **dotenv** - Environment variables
+<pre>
+┌────────────────────────────────────────────────────────┐
+│                    CHAINX CONTROLS                     │
+├────────────────────────────────────────────────────────┤
+│  i or /      →  Enter query mode                       │
+│  Enter       →  Submit query                           │
+│  Esc         →  Cancel / Exit                          │
+│  h           →  Home screen                            │
+│  q           →  Quit                                   │
+│  ↑ ↓ or j k  →  Scroll                                 │
+│  PgUp/PgDn   →  Fast scroll                            │
+│  Home/End    →  Jump top/bottom                        │
+│  s           →  Setup API key                          │
+└────────────────────────────────────────────────────────┘
+</pre>
+
+### Input Types (Auto-Detected)
+
+| What You Paste | Type | Example |
+|:--|:--:|--|
+| `0x...66 chars` | 🔗 Transaction | `0xabc123...` |
+| `0x...42 chars` | 👛 Address | `0x742d35...` |
+| `12345678` | 📦 Block Number | `18547293` |
+
+---
+
+## 🌐 Multi-Chain Ready
+
+| Chain | ID | Status |
+|:--|:-:|:--:|
+| Ethereum | 1 | ✅ Live |
+| Polygon | 137 | ✅ Live |
+| BSC | 56 | ✅ Live |
+| Arbitrum | 42161 | ✅ Live |
+| Optimism | 10 | ✅ Live |
+| Base | 8453 | ✅ Live |
+| Avalanche | 43114 | ✅ Live |
+| Sepolia | 11155111 | ✅ Testnet |
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
----
-
-## 📝 License
-
-MIT License - feel free to use this project for any purpose.
-
----
-
-## 🙏 Acknowledgments
-
-- [Ethereum Foundation](https://ethereum.org)
-- [Etherscan](https://etherscan.io)
-- [Public RPC Nodes](https://www.publicnode.com)
-
----
+## 🛠️ Stack
 
 <p align="center">
-  Made with ❤️ for the Ethereum Community
+  <img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tokio-000000?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/ratatui-000000?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/crossterm-000000?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/reqwest-000000?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/serde-000000?style=for-the-badge" />
 </p>
+
+---
+
+## ⚙️ Setup
+
+### 1. Get Your API Key (Free)
+
+```
+🔐 Etherscan.io → Login → API Keys → Create
+```
+
+### 2. Configure
+
+```bash
+# Create .env file
+echo "ETHERSCAN_API_KEY=your_key_here" > .env
+
+# Or set in-app (press 's')
+```
+
+> 💡 **Free tier: 5 calls/sec — more than enough for power users**
+
+---
+
+## 🤝 Contribute
+
+```bash
+# 🍴 Fork it
+git clone https://github.com/ZaifMirza/ChainX.git
+
+# 🌿 Branch it
+git checkout -b feature/your-feature
+
+# 💾 Commit it
+git commit -m "feat: add something amazing"
+
+# 🚀 Push it
+git push origin feature/your-feature
+
+# 🔥 PR it
+```
+
+---
+
+## 📜 License
+
+```
+MIT License — Do whatever you want. Just don't blame us.
+```
+
+---
+
+<div align="center">
+
+<pre>
+┌─────────────────────────────────────────────────────────┐
+│          Built with ⚡ by developers, for developers     │
+│                    Ethereum Community ❤️                │ 
+└─────────────────────────────────────────────────────────┘
+</pre>
+
+**[⭐ Star Us](https://github.com/ZaifMirza/ChainX)** • **[🐛 Report Bug](https://github.com/ZaifMirza/ChainX/issues)** • **[💬 Discuss](https://github.com/ZaifMirza/ChainX/discussions)**
+
+<p align="center">
+  <img src="https://img.shields.io/github/stars/ZaifMirza/ChainX?style=social" alt="Stars">
+  <img src="https://img.shields.io/github/forks/ZaifMirza/ChainX?style=social" alt="Forks">
+</p>
+
+</div>

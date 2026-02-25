@@ -33,6 +33,7 @@ pub fn print_box_footer() {
     println!("╚{}╝", "═".repeat(BOX_WIDTH - 2));
 }
 
+#[allow(dead_code)]
 pub fn print_header(title: &str) {
     println!("\n");
     print_box_header(title);

@@ -7,8 +7,8 @@ pub mod text;
 pub mod time;
 pub mod units;
 
-pub use math::calculate_block_reward;
+pub use math::{calculate_block_reward, calculate_block_reward_str};
 pub use status::get_status_display;
 pub use text::center_text;
-pub use time::format_timestamp;
+pub use time::{format_age, format_timestamp, format_timestamp_u64};
 pub use units::{wei_to_eth, wei_to_gwei};

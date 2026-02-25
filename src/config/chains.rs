@@ -1,8 +1,9 @@
 // Chain configuration types
 
-use crate::error::Result;
+use crate::app::Result;
 
 #[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct ChainConfig {
     pub name: &'static str,
     pub chain_id: &'static str,
@@ -96,7 +97,7 @@ impl ChainResolver for ChainResolverImpl {
 }
 
 pub fn get_chain(chain_name: &str) -> ChainConfig {
-    ChainResolverImpl::resolve(chain_name).unwrap_or_else(|_| ChainConfig {
+    ChainResolverImpl::resolve(chain_name).unwrap_or(ChainConfig {
         name: "Ethereum",
         chain_id: "1",
         rpc_url: "https://ethereum-rpc.publicnode.com",

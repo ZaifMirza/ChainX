@@ -23,6 +23,25 @@ pub fn calculate_block_reward(block_number: u64, uncle_count: usize) -> f64 {
     base_reward + uncle_reward
 }
 
+/// Calculate block reward and return as formatted string
+pub fn calculate_block_reward_str(block_number: u64) -> String {
+    let reward = if block_number >= LONDON_BLOCK {
+        BASE_REWARD_LONDON
+    } else if block_number >= CONSTANTINOPLE_BLOCK {
+        BASE_REWARD_CONSTANTINOPLE
+    } else if block_number >= BYZANTIUM_BLOCK {
+        BASE_REWARD_BYZANTIUM
+    } else {
+        BASE_REWARD_GENESIS
+    };
+
+    if reward == 0.0 {
+        "Variable (EIP-1559)".to_string()
+    } else {
+        format!("{:.4} ETH", reward)
+    }
+}
+
 #[allow(dead_code)]
 pub fn calculate_percentage(part: u64, total: u64) -> f64 {
     if total == 0 {

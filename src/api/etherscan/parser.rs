@@ -24,10 +24,10 @@ impl ResponseParser {
         let status = json.get("status").and_then(|v| v.as_str()).unwrap_or("0");
 
         if status != "1" {
-            if let Some(arr) = result.as_array() {
-                if arr.is_empty() {
-                    return Ok(Vec::new());
-                }
+            if let Some(arr) = result.as_array()
+                && arr.is_empty()
+            {
+                return Ok(Vec::new());
             }
             let msg = json
                 .get("message")

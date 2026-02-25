@@ -64,3 +64,14 @@ pub fn get_block_request(block_number: u64, full_tx: bool) -> serde_json::Value 
         .param(full_tx)
         .build()
 }
+
+pub fn get_block_number_request() -> serde_json::Value {
+    RpcRequestBuilder::new("eth_blockNumber").build()
+}
+
+pub fn get_transaction_count_request(address: &str) -> serde_json::Value {
+    RpcRequestBuilder::new("eth_getTransactionCount")
+        .param(address)
+        .param("latest")
+        .build()
+}

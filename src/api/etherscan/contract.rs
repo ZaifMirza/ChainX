@@ -137,10 +137,10 @@ impl ContractClient {
             .unwrap_or("0");
 
         if status != "1" {
-            if let Some(arr) = result.as_array() {
-                if arr.is_empty() {
-                    return Ok(vec![]);
-                }
+            if let Some(arr) = result.as_array()
+                && arr.is_empty()
+            {
+                return Ok(vec![]);
             }
             let message = json.get("message")
                 .and_then(|v| v.as_str())

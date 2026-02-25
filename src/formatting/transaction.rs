@@ -4,6 +4,7 @@ use crate::models::{TransactionDetail, TransactionReceipt};
 use crate::utils::hex::parse_hex;
 use crate::utils::{format_timestamp, get_status_display, wei_to_eth, wei_to_gwei};
 
+#[allow(dead_code)]
 pub struct TransactionFormatter<'a> {
     tx: &'a TransactionDetail,
     receipt: &'a Option<TransactionReceipt>,
@@ -12,6 +13,7 @@ pub struct TransactionFormatter<'a> {
 }
 
 impl<'a> TransactionFormatter<'a> {
+    #[allow(dead_code)]
     pub fn new(
         tx: &'a TransactionDetail,
         receipt: &'a Option<TransactionReceipt>,
@@ -28,7 +30,7 @@ impl<'a> TransactionFormatter<'a> {
 
     fn calculate_fee(&self) -> f64 {
         if let Some(r) = self.receipt {
-            let gas_used = r.gas_used.as_deref().map(|g| parse_hex(g)).unwrap_or(0);
+            let gas_used = r.gas_used.as_deref().map(parse_hex).unwrap_or(0);
             let gas_price = parse_hex(&self.tx.gas_price);
             (gas_used as u128 * gas_price as u128) as f64 / 1e18
         } else {
@@ -97,11 +99,13 @@ impl<'a> TransactionFormatter<'a> {
         output
     }
 
+    #[allow(dead_code)]
     pub fn print(&self) {
         println!("{}", self.format());
     }
 }
 
+#[allow(dead_code)]
 pub fn print_transaction_details(
     tx: &TransactionDetail,
     receipt: &Option<TransactionReceipt>,

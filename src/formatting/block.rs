@@ -79,6 +79,7 @@ impl<'a> BlockFormatter<'a> {
         output
     }
 
+    #[allow(dead_code)]
     pub fn print(&self) {
         println!("{}", self.format());
 
@@ -98,6 +99,7 @@ impl<'a> BlockFormatter<'a> {
     }
 }
 
+#[allow(dead_code)]
 pub fn print_block_details(block: &BlockInfo, symbol: &str) {
     let formatter = BlockFormatter::new(block, symbol);
     formatter.print();

@@ -1,6 +1,6 @@
 // Input reading and parsing
 
-use crate::error::{ExplorerError, Result};
+use super::error::{ExplorerError, Result};
 use crate::validation::input::{AddressValidator, BlockNumberValidator, InputValidator};
 
 #[derive(Debug, Clone)]
@@ -29,8 +29,8 @@ impl InputParser {
 
         // Check for block number
         if BlockNumberValidator(trimmed).is_valid() {
-            let block_number = if trimmed.starts_with("0x") {
-                u64::from_str_radix(&trimmed[2..], 16).unwrap_or(0)
+            let block_number = if let Some(stripped) = trimmed.strip_prefix("0x") {
+                u64::from_str_radix(stripped, 16).unwrap_or(0)
             } else {
                 trimmed.parse().unwrap_or(0)
             };
@@ -40,15 +40,4 @@ impl InputParser {
         // Assume it's a transaction hash
         Ok(InputType::TransactionHash(trimmed.to_string()))
     }
-}
-
-pub fn read_user_input() -> Result<String> {
-    println!("Enter transaction hash (0x...), block number, contract address (0x...), or 'quit'/'exit' to exit:");
-
-    let mut input = String::new();
-    std::io::stdin()
-        .read_line(&mut input)
-        .map_err(|e| ExplorerError::ValidationError(format!("Failed to read input: {}", e)))?;
-
-    Ok(input)
 }
