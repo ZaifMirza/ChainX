@@ -1,0 +1,63 @@
+# Labeler configuration for PR labeling
+# Based on files changed in the PR
+
+# Rust source code changes
+rust:
+  - '**/*.rs'
+  - 'Cargo.toml'
+  - 'Cargo.lock'
+
+# API related changes
+api:
+  - 'src/api/**/*'
+  - 'src/commands/**/*'
+
+# TUI/UI related changes
+ui:
+  - 'src/tui/**/*'
+  - 'src/formatting/**/*'
+
+# Configuration changes
+config:
+  - 'src/config/**/*'
+  - 'src/app/config.rs'
+  - '.env.example'
+
+# Model/data changes
+models:
+  - 'src/models/**/*'
+  - 'src/cache/**/*'
+
+# Utility changes
+utils:
+  - 'src/utils/**/*'
+  - 'src/validation/**/*'
+
+# Documentation changes
+documentation:
+  - 'README.md'
+  - 'CHANGELOG.md'
+  - 'docs/**/*'
+  - '**/*.md'
+
+# CI/CD changes
+ci:
+  - '.github/workflows/**/*'
+  - '.github/dependabot.yml'
+  - '.github/labeler.yml'
+
+# Test changes
+tests:
+  - 'tests/**/*'
+  - '**/*_test.rs'
+  - '**/*_tests.rs'
+
+# Dependencies
+dependencies:
+  - 'Cargo.toml'
+  - 'Cargo.lock'
+
+# Security related
+security:
+  - 'src/app/api_key.rs'
+  - 'src/validation/**/*'
